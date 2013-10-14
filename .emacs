@@ -6,6 +6,7 @@
  '(column-number-mode t)
  '(row-number-mode t)
  '(show-paren-mode t)
+ '(size-indication-mode t)
  '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
 
 ;;;
@@ -15,7 +16,7 @@
 ;;
 ;; Get rid of annoying startup message
 ;;
-(setq inhibit-startup-message t)        ; Do without annoying startup msg.
+(setq inhibit-startup-message t)        
 
 
 ;;
@@ -23,8 +24,8 @@
 ;;
 (add-to-list 'load-path "~/.emacs.d/third-party/")
 (add-to-list 'load-path "~/.emacs.d/third-party/color-theme-6.6.0")
-(add-to-list 'load-path "~/.emacs.d/third-party/cedet-1.1/common")
 (add-to-list 'load-path "~/.emacs.d/third-party/el-get")
+(add-to-list 'load-path "~/.emacs.d/el-get/cedet")
 (add-to-list 'load-path "~/.emacs.d/el-get/jedi")
 (add-to-list 'load-path "~/.emacs.d/el-get/auto-complete")
 (add-to-list 'load-path "~/.emacs.d/el-get/ctable")
@@ -33,89 +34,60 @@
 (add-to-list 'load-path "~/.emacs.d/el-get/epc")
 (add-to-list 'load-path "~/.emacs.d/el-get/fuzzy")
 (add-to-list 'load-path "~/.emacs.d/el-get/popup")
+(add-to-list 'load-path "~/.emacs.d/el-get/ecb")
+(add-to-list 'load-path "~/.emacs.d/el-get/auctex")
 
 ;;
 ;; CEDET
 ;;
+(load-file "~/.emacs.d/el-get/cedet/cedet-devel-load.el")
 
-(load-file "~/.emacs.d/third-party/cedet-1.1/common/cedet.el")
+(require 'ecb)
 
-(setq semantic-default-submodes
-      '(;; cache(?)
-        global-semanticdb-minor-mode
+(add-to-list 'semantic-default-submodes 'global-semantic-decoration-mode)
+(add-to-list 'semantic-default-submodes 'global-semantic-idle-local-symbol-highlight-mode)
+(add-to-list 'semantic-default-submodes 'global-semantic-idle-scheduler-mode)
+(add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
 
-        global-semantic-highlight-edits-mode
-        global-semantic-idle-local-symbol-highlight-mode
-        ;; global-cedet-m3-minor-mode
+(semantic-mode 1)
 
-        ;; code helpers
-        global-semantic-idle-scheduler-mode
-        global-semantic-idle-summary-mode
-        global-semantic-idle-completions-mode
+(require 'semantic/ia)
+(require 'semantic/bovine/gcc) ; or depending on you compiler
 
-        ;; eye candy
-        global-semantic-decoration-mode
-        global-semantic-highlight-func-mode
-        global-semantic-highlight-edits-mode
-        global-semantic-stickyfunc-mode
+(global-ede-mode 1)                      ; Enable the Project management system
+(semantic-load-enable-code-helpers)      ; Enable prototype help and smart completion 
+(global-srecode-minor-mode 1)            ; Enable template insertion menu
 
-        ;; debugging semantic itself
-        ;;global-semantic-show-parser-state-mode 1   ;; show the parsing state in the mode line
-        ;;global-semantic-show-unmatched-syntax-mode 1
-        ))
+(when (cedet-gnu-global-version-check t)
+  (semanticdb-enable-gnu-global-databases 'c-mode)
+  (semanticdb-enable-gnu-global-databases 'c++-mode))
 
-(global-ede-mode 1)
-(speedbar 1)
+(defun my-c-mode-cedet-hook ()
+  (local-set-key "." 'semantic-complete-self-insert)
+  (local-set-key ">" 'semantic-complete-self-insert))
+(add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)
 
-;; Enable EDE (Project Management) features
-;;(global-ede-mode 1)
-
-;; Enabling Semantic (code-parsing, smart completion) features
-;; Select one of the following:
-
-;; * This enables the database and idle reparse engines
-;;(semantic-load-enable-minimum-features)
-
-;; * This enables some tools useful for coding, such as summary mode,
-;;   imenu support, and the semantic navigator
-;;(semantic-load-enable-code-helpers)
-
-;; * This enables even more coding tools such as intellisense mode,
-;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-(semantic-load-enable-gaudy-code-helpers)
-
-;; * This enables the use of Exuberant ctags if you have it installed.
-;;   If you use C++ templates or boost, you should NOT enable it.
-;;(semantic-load-enable-all-exuberent-ctags-support)
-;;   Or, use one of these two types of support.
-;;   Add support for new languages only via ctags.
-;; (semantic-load-enable-primary-exuberent-ctags-support)
-;;   Add support for using ctags as a backup parser.
-;; (semantic-load-enable-secondary-exuberent-ctags-support)
-
-;; Enable SRecode (Template management) minor-mode.
-;; (global-srecode-minor-mode 1)
 
 ;;
 ;; el-get
 ;; https://github.com/dimitri/el-get
 ;;
- (unless (require 'el-get nil 'noerror)
-   (with-current-buffer
-       (url-retrieve-synchronously
-        "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
-     (goto-char (point-max))
-     (eval-print-last-sexp)))
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve-synchronously
+       "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
+    (goto-char (point-max))
+    (eval-print-last-sexp)))
 
- (add-to-list 'el-get-recipe-path "~/.emacs.d/third-party/el-get-user/recipes")
- (el-get 'sync)
+(add-to-list 'el-get-recipe-path "~/.emacs.d/third-party/el-get-user/recipes")
+(el-get 'sync)
 
 ;;
 ;; direx-el
 ;; https://github.com/m2ym/direx-el
 ;;
-;(require 'direx)
-;(global-set-key (kbd "C-x C-j") 'direx:jump-to-directory)
+(require 'direx)
+(global-set-key (kbd "C-x C-j") 'direx:jump-to-directory)
 
 ;;
 ;; Jedi
@@ -130,8 +102,8 @@
 ;; Jedi-direx
 ;; https://github.com/tkf/emacs-jedi-direx
 ;;
-;(eval-after-load "python"
-;  '(define-key python-mode-map "\C-cx" 'jedi-direx:pop-to-buffer))
+(eval-after-load "python"
+  '(define-key python-mode-map "\C-cx" 'jedi-direx:pop-to-buffer))
 
 
 ;;
@@ -203,9 +175,6 @@
             "%f"
             (dired-directory dired-directory "%b")))
 
-
-(setq ‘next-line-add-newlines’ 't)
-
 ;;
 ;; Verilog mode customization
 ;; http://www.cs.washington.edu/education/courses/cse467/04wi/misc/verilog-mode.el
@@ -256,5 +225,4 @@
 ;;
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.tex\\'" . latex-mode))
-
+(add-to-list 'auto-mode-alist '("\\.tex$" . LaTeX-mode))
