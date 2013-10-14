@@ -21,24 +21,24 @@
 ;;
 ;; Add paths to 3rd party tools
 ;;
-(add-to-list 'load-path "/home/ptracton/.emacs.d/third-party/")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/third-party/color-theme-6.6.0")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/third-party/cedet-1.1/common")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/third-party/el-get")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/jedi")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/auto-complete")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/ctable")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/deferred")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/direx")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/epc")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/fuzzy")
-(add-to-list 'load-path "/home/ptracton/.emacs.d/el-get/popup")
+(add-to-list 'load-path "~/.emacs.d/third-party/")
+(add-to-list 'load-path "~/.emacs.d/third-party/color-theme-6.6.0")
+(add-to-list 'load-path "~/.emacs.d/third-party/cedet-1.1/common")
+(add-to-list 'load-path "~/.emacs.d/third-party/el-get")
+(add-to-list 'load-path "~/.emacs.d/el-get/jedi")
+(add-to-list 'load-path "~/.emacs.d/el-get/auto-complete")
+(add-to-list 'load-path "~/.emacs.d/el-get/ctable")
+(add-to-list 'load-path "~/.emacs.d/el-get/deferred")
+(add-to-list 'load-path "~/.emacs.d/el-get/direx")
+(add-to-list 'load-path "~/.emacs.d/el-get/epc")
+(add-to-list 'load-path "~/.emacs.d/el-get/fuzzy")
+(add-to-list 'load-path "~/.emacs.d/el-get/popup")
 
 ;;
 ;; CEDET
 ;;
 
-(load-file "/home/ptracton/.emacs.d/third-party/cedet-1.1/common/cedet.el")
+(load-file "~/.emacs.d/third-party/cedet-1.1/common/cedet.el")
 
 (setq semantic-default-submodes
       '(;; cache(?)
@@ -82,7 +82,7 @@
 
 ;; * This enables even more coding tools such as intellisense mode,
 ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-;;(semantic-load-enable-gaudy-code-helpers)
+(semantic-load-enable-gaudy-code-helpers)
 
 ;; * This enables the use of Exuberant ctags if you have it installed.
 ;;   If you use C++ templates or boost, you should NOT enable it.
@@ -121,7 +121,7 @@
 ;; Jedi
 ;; http://tkf.github.io/emacs-jedi/released/
 ;;
-(load-file "/home/ptracton/.emacs.d/el-get/jedi/jedi.el")
+(load-file "~/.emacs.d/el-get/jedi/jedi.el")
 (add-hook 'python-mode-hook 'jedi:ac-setup)
 (setq jedi:setup-keys t)                      ; optional
 (setq jedi:complete-on-dot t)                 ; optional
