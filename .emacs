@@ -4,6 +4,8 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(column-number-mode t)
+ '(ecb-options-version "2.40")
+ '(ede-project-directories (quote ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/freertos_template" "/home/ptracton/src/software/experimental/C/STM32/STM32F3/Libraries/CMSIS/Device/ST/STM32F30x/Include")))
  '(row-number-mode t)
  '(show-paren-mode t)
  '(size-indication-mode t)
@@ -35,7 +37,7 @@
 (add-to-list 'load-path "~/.emacs.d/el-get/fuzzy")
 (add-to-list 'load-path "~/.emacs.d/el-get/popup")
 (add-to-list 'load-path "~/.emacs.d/el-get/ecb")
-(add-to-list 'load-path "~/.emacs.d/el-get/auctex")
+;(add-to-list 'load-path "~/.emacs.d/el-get/auctex")
 
 ;;
 ;; CEDET
@@ -58,11 +60,25 @@
 (semantic-load-enable-code-helpers)      ; Enable prototype help and smart completion 
 (global-srecode-minor-mode 1)            ; Enable template insertion menu
 
+(semantic-add-system-include "/home/ptracton/src/software/experimental/C/STM32/STM32F3/STM32F30x_StdPeriph_Driver/inc" 'c++-mode)
+(semantic-add-system-include "/home/ptracton/src/software/experimental/C/STM32/STM32F3/CMSIS/Include" 'c++-mode)
+(semantic-add-system-include "/home/ptracton/src/software/experimental/C/STM32/STM32F3/CMSIS/Device/ST/STM32F30x/Include" 'c++-mode)
+
+
+;; Autocomplete
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories (expand-file-name
+             "~/.emacs.d/el-get/auto-complete/dict"))
+(setq ac-comphist-file (expand-file-name
+             "~/.emacs.d/ac-comphist.dat"))
+(ac-config-default)
+
 (when (cedet-gnu-global-version-check t)
   (semanticdb-enable-gnu-global-databases 'c-mode)
   (semanticdb-enable-gnu-global-databases 'c++-mode))
 
 (defun my-c-mode-cedet-hook ()
+  (add-to-list 'ac-sources 'ac-source-semantic)
   (local-set-key "." 'semantic-complete-self-insert)
   (local-set-key ">" 'semantic-complete-self-insert))
 (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)
@@ -226,3 +242,9 @@
 (add-to-list 'auto-mode-alist '("\\.c\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.tex$" . LaTeX-mode))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )
