@@ -60,6 +60,8 @@
 	     (deferred ctable)))
  (fuzzy status "installed" recipe
 	(:name fuzzy :website "https://github.com/auto-complete/fuzzy-el" :description "Fuzzy matching utilities for GNU Emacs" :type github :pkgname "auto-complete/fuzzy-el"))
+ (git-modes status "installed" recipe
+	    (:name git-modes :description "GNU Emacs modes for various Git-related files" :type github :pkgname "magit/git-modes"))
  (jedi status "installed" recipe
        (:name jedi :description "An awesome Python auto-completion for Emacs" :type github :pkgname "tkf/emacs-jedi" :build
 	      (("make" "requirements"))

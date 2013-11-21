@@ -38,8 +38,10 @@
 (add-to-list 'load-path "~/.emacs.d/el-get/fuzzy")
 (add-to-list 'load-path "~/.emacs.d/el-get/popup")
 (add-to-list 'load-path "~/.emacs.d/el-get/ecb")
+(add-to-list 'load-path "~/.emacs.d/third-party/magit-1.2.0/")
 ;(add-to-list 'load-path "~/.emacs.d/el-get/auctex")
 (load-file "~/.emacs.d/graphviz-dot-mode.el")
+(load-file "~/.emacs.d/third-party/magit-1.2.0/magit.el")
 
 ;;
 ;; CEDET
