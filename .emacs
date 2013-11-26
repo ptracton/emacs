@@ -1,8 +1,8 @@
 (custom-set-variables
-  ;; custom-set-variables was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
  '(column-number-mode t)
  '(display-time-mode t)
  '(ede-project-directories (quote ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/freertos_template" "/home/ptracton/src/software/experimental/C/STM32/STM32F3/Libraries/CMSIS/Device/ST/STM32F30x/Include")))
@@ -132,6 +132,14 @@
 (eval-after-load "python"
   '(define-key python-mode-map "\C-cx" 'jedi-direx:pop-to-buffer))
 
+;;
+;; http://www.emacswiki.org/emacs/InteractivelyDoThings
+;;
+(require 'ido)
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode t)
+
 
 ;;
 ;; Put the scroll bar on the right side
@@ -245,6 +253,35 @@
 ;; (setq TeX-PDF-mode t)
 ;; (setq reftex-plug-into-AUCTeX t)
 
+;;
+;; Key Bindings
+;;
+(setq compilation-read-command nil)
+(global-set-key (kbd "<f1>") 'shell)
+(global-set-key (kbd "<f7>") 'compile)
+(global-set-key (kbd "M-g") 'magit-status)
+
+;;
+;; http://www.emacswiki.org/emacs/WindMove
+;;
+(global-set-key (kbd "C-c <left>")  'windmove-left)
+(global-set-key (kbd "C-c <right>") 'windmove-right)
+(global-set-key (kbd "C-c <up>")    'windmove-up)
+(global-set-key (kbd "C-c <down>")  'windmove-down)
+
+;;
+;; Buffer switching: http://www.emacswiki.org/emacs/IswitchBuffers (C-x b)
+;;
+(iswitchb-mode 1)
+(defun iswitchb-local-keys ()
+  (mapc (lambda (K) 
+	  (let* ((key (car K)) (fun (cdr K)))
+	    (define-key iswitchb-mode-map (edmacro-parse-keys key) fun)))
+	'(("<right>" . iswitchb-next-match)
+	  ("<left>"  . iswitchb-prev-match)
+	  ("<up>"    . ignore             )
+	  ("<down>"  . ignore             ))))
+(add-hook 'iswitchb-define-mode-map-hook 'iswitchb-local-keys)
 
 ;;
 ;; Force .c and .h files into C++ mode since C mode does not handle doxygen 
@@ -255,8 +292,8 @@
 (add-to-list 'auto-mode-alist '("\\.tex$" . LaTeX-mode))
 (add-to-list 'auto-mode-alist '("\\.gv$" .  graphviz-dot-mode))
 (custom-set-faces
-  ;; custom-set-faces was added by Custom.
-  ;; If you edit it by hand, you could mess it up, so be careful.
-  ;; Your init file should contain only one such instance.
-  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "unknown" :family "DejaVu LGC Sans Mono")))))
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "unknown" :family "DejaVu Sans Mono")))))
