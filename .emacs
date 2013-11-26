@@ -1,11 +1,10 @@
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
  '(display-time-mode t)
- '(ecb-options-version "2.40")
  '(ede-project-directories (quote ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/freertos_template" "/home/ptracton/src/software/experimental/C/STM32/STM32F3/Libraries/CMSIS/Device/ST/STM32F30x/Include")))
  '(row-number-mode t)
  '(show-paren-mode t)
@@ -42,6 +41,10 @@
 ;(add-to-list 'load-path "~/.emacs.d/el-get/auctex")
 (load-file "~/.emacs.d/graphviz-dot-mode.el")
 (load-file "~/.emacs.d/third-party/magit-1.2.0/magit.el")
+;; Replace path below to be where your matlab.el file is.
+(add-to-list 'load-path "~/.emacs.d/third-party/matlab-emacs/matlab-emacs")
+(load-library "matlab-load")
+
 
 ;;
 ;; CEDET
@@ -86,6 +89,10 @@
   (local-set-key "." 'semantic-complete-self-insert)
   (local-set-key ">" 'semantic-complete-self-insert))
 (add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)
+
+;; Enable CEDET feature support for MATLAB code. (Optional)
+(matlab-cedet-setup)
+
 
 
 ;;
@@ -248,8 +255,8 @@
 (add-to-list 'auto-mode-alist '("\\.tex$" . LaTeX-mode))
 (add-to-list 'auto-mode-alist '("\\.gv$" .  graphviz-dot-mode))
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "DejaVu Sans Mono" :foundry "unknown" :slant normal :weight normal :height 113 :width normal)))))
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :background "black" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "unknown" :family "DejaVu LGC Sans Mono")))))
