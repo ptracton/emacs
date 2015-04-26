@@ -5,10 +5,9 @@
 ;;;
 ;;; py-autopep8: sudo apt-get install python-autopep8
 ;;;
-;(load-file "~/.emacs.d/elpa/py-autopep8.el/py-autopep8.el")
-;(require 'py-autopep8)
-;(add-hook 'before-save-hook 'py-autopep8-enable-on-save)
-;(setq py-autopep8-options '("--max-line-length=100"))
+(require 'py-autopep8)
+(add-hook 'before-save-hook 'py-autopep8-enable-on-save)
+(setq py-autopep8-options '("--max-line-length=100"))
 
 ;;;
 ;;; pylint: https://bitbucket.org/logilab/pylint/pull-request/141/pylintel-missing-dependency-on-tramp/diff
