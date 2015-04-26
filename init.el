@@ -102,6 +102,7 @@
 (setq frame-title-format '(buffer-file-name "%f" ("%b")))
 (setq require-final-newline 't)
 (global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
+(recentf-mode 1)
 
 ;;;
 ;;; Company Mode for auto-completion
@@ -182,7 +183,7 @@
 ;;;
 ;;; Helm Mode 
 ;;;
-;(load-file "~/.emacs.d/helm.el")
+(load-file "~/.emacs.d/helm.el")
 
 ;;;
 ;;; Key Bindings
@@ -192,7 +193,7 @@
 (global-set-key (kbd "<f2>") 'magit-status)
 (global-set-key (kbd "<f3>") 'find-tag)
 (global-set-key (kbd "<f4>") 'rainbow-delimiters-mode)
-;(global-set-key (kbd "<f5>") 'color-identifiers-mode)
+(global-set-key (kbd "<f5>") 'recentf-open-files)
 (global-set-key (kbd "S-<f5>")  'highlight-changes-previous-change)
 (global-set-key (kbd "<f6>") 'highlight-changes-visible-mode) 
 (global-set-key (kbd "S-<f6>") 'highlight-changes-remove-highlight)
