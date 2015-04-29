@@ -3,7 +3,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
+ '(custom-safe-themes (quote ("18a33cdb764e4baf99b23dcd5abdbf1249670d412c6d3a8092ae1a7b211613d5" "9122dfb203945f6e84b0de66d11a97de6c9edf28b3b5db772472e4beccc6b3c5" "a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
  '(ede-project-directories (quote ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -41,6 +41,8 @@
 (defconst demo-packages
   '(moe-theme
     dark-krystal-theme
+    flatland-black-theme
+    firecode-theme
     auto-complete  ;Needed for auto-complete-verilog.el,
     cl
     elpy
@@ -207,10 +209,20 @@
 ;;; Set up colors and appearance
 ;;; https://github.com/kuanyui/moe-theme.el
 ;;;
+
 ;(require 'moe-theme)
 ;(load-theme 'moe-dark t)
-(require 'dark-krystal-theme)
-(load-theme 'dark-krystal)
+
+ ;(require 'dark-krystal-theme)
+;(load-theme 'dark-krystal)
+
+;(require 'flatland-black-theme)
+;(load-theme 'flatland-black)
+
+(require 'firecode-theme)
+(load-theme 'firecode)
+
+
 (set-background-color "black")
 
 ;;;
