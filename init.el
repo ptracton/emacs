@@ -72,6 +72,7 @@
     org
     org-projectile
     org-magit
+    neotree
     magit
     magit-gitflow
     magit-find-file))
@@ -191,6 +192,9 @@
 ;;; Key Bindings
 ;;;
 (setq compilation-read-command nil)
+
+
+
 (global-set-key (kbd "<f1>") 'shell)
 (global-set-key (kbd "<f2>") 'magit-status)
 (global-set-key (kbd "<f3>") 'find-tag)
@@ -200,10 +204,14 @@
 (global-set-key (kbd "<f6>") 'highlight-changes-visible-mode) 
 (global-set-key (kbd "S-<f6>") 'highlight-changes-remove-highlight)
 (global-set-key (kbd "<f7>") 'compile)
-(global-set-key (kbd "<f8>") 'fixmee-view-listing)
+(global-set-key (kbd "<f9>") 'fixmee-view-listing)
 ;(global-set-key (kbd "<f9>") 'nlinum-mode)
 (global-set-key (kbd "<f10>") 'flycheck-list-errors)
 
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+
+(require 'neotree)
+(global-set-key [f8] 'neotree-toggle)
 
 ;;;
 ;;; Set up colors and appearance
@@ -214,7 +222,7 @@
 ;(load-theme 'moe-dark t)
 
  ;(require 'dark-krystal-theme)
-;(load-theme 'dark-krystal)
+;(load-theme 'dark-krystal
 
 ;(require 'flatland-black-theme)
 ;(load-theme 'flatland-black)
