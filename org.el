@@ -44,7 +44,7 @@
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
 (global-set-key (kbd "<f12>") 'org-agenda)
-(global-set-key (kbd "<f9> c") 'calendar)
+;(global-set-key (kbd "<f9> c") 'calendar)
 
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
