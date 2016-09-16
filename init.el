@@ -18,7 +18,7 @@
 
 (require 'package)
 (add-to-list 'package-archives
-         '("melpa" . "http://melpa.milkbox.net/packages/"))
+             '("melpa" . "http://melpa.org/packages/"))
 
 (add-to-list 'package-archives
              '("gnu" . "http://elpa.gnu.org/packages/"))
@@ -28,6 +28,9 @@
 
 (add-to-list 'package-archives
              '("elpy" . "http://jorgenschaefer.github.io/packages/"))
+
+(add-to-list 'package-archives
+             '("org" . "http://orgmode.org/elpa/"))
 (package-initialize)
 
 (setq user-mail-address "ptracton@gmail.com")
@@ -187,6 +190,19 @@
 ;;; Helm Mode 
 ;;;
 (load-file "~/.emacs.d/helm.el")
+
+
+;;
+;; Function to remove ^M from end of line
+;;
+;; http://stackoverflow.com/questions/730751/hiding-m-in-emacs
+;;
+(defun remove-dos-eol ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (setq buffer-display-table (make-display-table))
+  (aset buffer-display-table ?\^M []))
+
 
 ;;;
 ;;; Key Bindings
