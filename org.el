@@ -36,7 +36,7 @@
       (org-display-inline-images)
     (error nil)))
 (setq org-confirm-babel-evaluate nil)
-(setq org-latex-listings t)
+;(setq org-latex-listings t)
 
 ;;
 ;; Standard key bindings

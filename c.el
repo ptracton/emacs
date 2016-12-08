@@ -23,3 +23,16 @@
  ;; Non-nil means display source file containing the main routine at startup
  gdb-show-main t
  )
+
+
+(add-hook 'c-mode-common-hook
+               (lambda ()
+                (font-lock-add-keywords nil
+                 '(("\\<\\(FIXME\\|TODO\\|BUG\\):" 1 font-lock-warning-face t)))))
+
+
+(add-hook 'c-mode-common-hook
+               (lambda ()
+                (font-lock-add-keywords nil
+                 '(("\\<\\(REPAIRED\\|STUBBED\\):" 1 font-lock-keyword-face t)))))
+

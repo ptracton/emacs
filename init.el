@@ -58,7 +58,7 @@
     graphviz-dot-mode
     jinja2-mode       ;http://github.com/paradoxxxzero/jinja2-mode
     json-mode
-    xcscope
+    xcscope    
     fixmee
     flycheck
     flycheck-color-mode-line
@@ -109,6 +109,8 @@
 (setq require-final-newline 't)
 (global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
 (recentf-mode 1)
+(setq show-paren-delay 0)
+(show-paren-mode 1)
 
 ;;;
 ;;; Company Mode for auto-completion
@@ -126,7 +128,7 @@
 ;;; Fixmee
 ;;; 
 (require 'fixmee)
-;(global-fixmee-mode 1)
+(global-fixmee-mode 1)
 
 ;;;
 ;;; https://github.com/nonsequitur/smex
@@ -171,6 +173,8 @@
 ;;; C 
 ;;;
 (load-file "~/.emacs.d/c.el")
+
+
 ;;;
 ;;; LaTex Mode 
 ;;;
@@ -225,6 +229,13 @@
 (global-set-key (kbd "<f10>") 'flycheck-list-errors)
 
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
+
+(progn
+  (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
+  (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
+  (add-to-list 'auto-mode-alist '("\\.f\\'" . text-mode))
+  )
+
 
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
