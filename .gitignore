@@ -16,3 +16,10 @@
 *.exe
 *.out
 *.app
+
+*~
+var/
+elpa/
+tramp
+smex-items
+projectile*
