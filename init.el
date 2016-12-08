@@ -58,7 +58,8 @@
     graphviz-dot-mode
     jinja2-mode       ;http://github.com/paradoxxxzero/jinja2-mode
     json-mode
-    xcscope    
+    xcscope
+    button-lock
     fixmee
     flycheck
     flycheck-color-mode-line
@@ -126,7 +127,10 @@
 
 ;;;
 ;;; Fixmee
-;;; 
+;;;
+(require 'button-lock)
+(global-button-lock-mode 1)
+
 (require 'fixmee)
 (global-fixmee-mode 1)
 
