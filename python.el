@@ -1,4 +1,13 @@
 
+(add-hook 'python-mode-hook 'anaconda-mode)
+(eval-after-load "company"
+  '(add-to-list 'company-backends 'company-anaconda))
+
+(defun my/python-mode-hook ()
+  (add-to-list 'company-backends 'company-jedi))
+
+(add-hook 'python-mode-hook 'my/python-mode-hook)
+
 (elpy-enable)
 ;(setq elpy-rpc-backend "jedi")
 

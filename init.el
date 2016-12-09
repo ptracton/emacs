@@ -3,8 +3,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("18a33cdb764e4baf99b23dcd5abdbf1249670d412c6d3a8092ae1a7b211613d5" "9122dfb203945f6e84b0de66d11a97de6c9edf28b3b5db772472e4beccc6b3c5" "a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
- '(ede-project-directories (quote ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo"))))
+ '(custom-safe-themes
+   (quote
+    ("eb0a314ac9f75a2bf6ed53563b5d28b563eeba938f8433f6d1db781a47da1366" "cc60d17db31a53adf93ec6fad5a9cfff6e177664994a52346f81f62840fe8e23" "18a33cdb764e4baf99b23dcd5abdbf1249670d412c6d3a8092ae1a7b211613d5" "9122dfb203945f6e84b0de66d11a97de6c9edf28b3b5db772472e4beccc6b3c5" "a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
+ '(ede-project-directories
+   (quote
+    ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -45,6 +49,8 @@
   '(moe-theme
     dark-krystal-theme
     flatland-black-theme
+    dracula-theme
+    cherry-blossom-theme
     firecode-theme
     auto-complete  ;Needed for auto-complete-verilog.el,
     cl
@@ -77,6 +83,16 @@
     org-projectile
     org-magit
     neotree
+    paradox
+    anaconda-mode
+    company-anaconda
+    company-jedi
+    company-math
+    google-c-style
+    flycheck-google-cpplint
+    helm-company
+    helm-ls-git
+    helm-ls-svn
     magit
     magit-gitflow
     magit-find-file))
@@ -113,11 +129,18 @@
 (setq show-paren-delay 0)
 (show-paren-mode 1)
 
+
+;;;
+;;; Paradox
+;;;
+(setq paradox-github-token "4deac5e8ae3ac863de01cd934cc9c78e1364d156")
+
 ;;;
 ;;; Company Mode for auto-completion
 ;;;
 (require 'company)
 (add-hook 'after-init-hook 'global-company-mode)
+(add-to-list 'company-backends 'company-math-symbols-unicode)
 
 ;;;
 ;;; YASnippet everywhere
@@ -252,15 +275,20 @@
 ;(require 'moe-theme)
 ;(load-theme 'moe-dark t)
 
- ;(require 'dark-krystal-theme)
-;(load-theme 'dark-krystal
+;(require 'cherry-blossom-theme)
+;(load-theme 'cherry-blossom)
+
+;(require 'dark-krystal-theme)
+;(load-theme 'dark-krystal)
 
 ;(require 'flatland-black-theme)
 ;(load-theme 'flatland-black)
 
-(require 'firecode-theme)
-(load-theme 'firecode)
+;(require 'firecode-theme)
+;(load-theme 'firecode)
 
+(require 'dracula-theme)
+(load-theme 'dracula)
 
 (set-background-color "black")
 
