@@ -37,10 +37,6 @@
              '("org" . "http://orgmode.org/elpa/"))
 (package-initialize)
 
-(setq user-mail-address "ptracton@gmail.com")
-(setq user-full-name "Philip Tracton")
-
-(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;; 
 ;;; List of packages to install and use
@@ -52,13 +48,14 @@
     dracula-theme
     cherry-blossom-theme
     firecode-theme
-    auto-complete  ;Needed for auto-complete-verilog.el,
+;    auto-complete  ;Needed for auto-complete-verilog.el,
     cl
     elpy
     pylint
-    py-autopep8 
+    py-autopep8
     jedi
-    tramp    
+    jedi-direx
+    tramp
     smex
     auctex
     graphviz-dot-mode
@@ -82,6 +79,7 @@
     org
     org-projectile
     org-magit
+    org-plus-contrib
     neotree
     paradox
     anaconda-mode
@@ -93,6 +91,10 @@
     helm-company
     helm-ls-git
     helm-ls-svn
+    realgud
+    flx-ido
+    ido-ubiquitous
+    diminish
     magit
     magit-gitflow
     magit-find-file))
@@ -129,6 +131,19 @@
 (setq show-paren-delay 0)
 (show-paren-mode 1)
 
+(global-visual-line-mode 1) ;; how long lines are handled.  This
+                            ;; appears to wrap long lines visually,
+                            ;; but not add line-returns
+
+(global-font-lock-mode t)   ;; turn on font-lock mode everywhere
+
+(setq backup-inhibited t)  ;; disable backup file creation
+
+(fset 'yes-or-no-p 'y-or-n-p) ; answer with y/n instead of yes/no
+
+;; Disable all version control. makes startup and opening files much faster
+;; except git and svn which I actually use
+(setq vc-handled-backends '(Git SVN))
 
 ;;;
 ;;; Paradox
@@ -165,21 +180,22 @@
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 
+;; diminish keeps the modeline tidy
+(require 'diminish)
+
+;; bookmarks
+(require 'bookmark)
 
 ;;;
-;;; http://emacs-fu.blogspot.com/2009/05/tracking-changes.html
 ;;;
-(global-highlight-changes-mode t)
-(set-face-foreground 'highlight-changes nil)
-(set-face-background 'highlight-changes "#382f2f")
-(set-face-foreground 'highlight-changes-delete nil)
-(set-face-background 'highlight-changes-delete "#916868")
+;;;
+(load-file "~/.emacs.d/util.el")
 
 ;;;
-;;; No tabs but use 4 spaces for a tab key
+;;; IDO
 ;;;
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
+(load-file "~/.emacs.d/ido.el")
+
 
 ;;;
 ;;; Magit http://magit.vc/
@@ -223,16 +239,7 @@
 (load-file "~/.emacs.d/helm.el")
 
 
-;;
-;; Function to remove ^M from end of line
-;;
-;; http://stackoverflow.com/questions/730751/hiding-m-in-emacs
-;;
-(defun remove-dos-eol ()
-  "Do not show ^M in files containing mixed UNIX and DOS line endings."
-  (interactive)
-  (setq buffer-display-table (make-display-table))
-  (aset buffer-display-table ?\^M []))
+
 
 
 ;;;
@@ -287,12 +294,8 @@
 ;(require 'firecode-theme)
 ;(load-theme 'firecode)
 
+
 (require 'dracula-theme)
 (load-theme 'dracula)
 
 (set-background-color "black")
-
-;;;
-;;; END OF EMACS CONFIGURATION
-;;;
-
