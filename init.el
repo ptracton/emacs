@@ -5,7 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("eb0a314ac9f75a2bf6ed53563b5d28b563eeba938f8433f6d1db781a47da1366" "cc60d17db31a53adf93ec6fad5a9cfff6e177664994a52346f81f62840fe8e23" "18a33cdb764e4baf99b23dcd5abdbf1249670d412c6d3a8092ae1a7b211613d5" "9122dfb203945f6e84b0de66d11a97de6c9edf28b3b5db772472e4beccc6b3c5" "a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
+    ("ff7625ad8aa2615eae96d6b4469fcc7d3d20b2e1ebc63b761a349bebbb9d23cb" "eb0a314ac9f75a2bf6ed53563b5d28b563eeba938f8433f6d1db781a47da1366" "cc60d17db31a53adf93ec6fad5a9cfff6e177664994a52346f81f62840fe8e23" "18a33cdb764e4baf99b23dcd5abdbf1249670d412c6d3a8092ae1a7b211613d5" "9122dfb203945f6e84b0de66d11a97de6c9edf28b3b5db772472e4beccc6b3c5" "a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
  '(ede-project-directories
    (quote
     ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo"))))
@@ -86,14 +86,14 @@
     company-anaconda
     company-jedi
     company-math
-    google-c-style
-    flycheck-google-cpplint
+   ; google-c-style
+   ; flycheck-google-cpplint
     helm-company
     helm-ls-git
     helm-ls-svn
     realgud
     flx-ido
-    ido-ubiquitous
+    ;ido-ubiquitous
     diminish
     magit
     magit-gitflow
@@ -226,7 +226,7 @@
 ;;;
 ;;; ORG Mode 
 ;;;
-(load-file "~/.emacs.d/org.el")
+;(load-file "~/.emacs.d/org.el")
 
 ;;;
 ;;; Projectile Mode 

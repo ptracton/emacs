@@ -1,6 +1,6 @@
 ;;* ido completion
 (require 'ido)
-(require 'ido-ubiquitous)
+;(require 'ido-ubiquitous)
 (require 'flx-ido)
 
 (setq ido-enable-prefix nil
@@ -12,7 +12,7 @@
       ido-default-file-method 'selected-window
       ido-auto-merge-work-directories-length -1)
 (ido-mode +1)
-(ido-ubiquitous-mode +1)
+;(ido-ubiquitous-mode +1)
 
 ;;** smarter fuzzy matching for ido
 (flx-ido-mode +1)
