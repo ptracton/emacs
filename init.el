@@ -226,7 +226,7 @@
 ;;;
 ;;; ORG Mode 
 ;;;
-;(load-file "~/.emacs.d/org.el")
+(load-file "~/.emacs.d/org.el")
 
 ;;;
 ;;; Projectile Mode 
