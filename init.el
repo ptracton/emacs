@@ -144,6 +144,7 @@
 ;; Disable all version control. makes startup and opening files much faster
 ;; except git and svn which I actually use
 (setq vc-handled-backends '(Git SVN))
+(global-diff-hl-mode)
 
 ;;;
 ;;; Paradox
