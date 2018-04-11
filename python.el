@@ -19,6 +19,7 @@
 ;;; py-autopep8: sudo apt-get install python-autopep8
 ;;;
 (require 'py-autopep8)
+(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
 
 ;(add-hook 'before-save-hook 'py-autopep8-enable-on-save)
 
