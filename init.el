@@ -86,6 +86,8 @@
     company-anaconda
     company-jedi
     company-math
+    markdown-mode
+    markdown-mode+
    ; google-c-style
    ; flycheck-google-cpplint
     helm-company
@@ -150,6 +152,19 @@
 ;;; Paradox
 ;;;
 (setq paradox-github-token "4deac5e8ae3ac863de01cd934cc9c78e1364d156")
+
+
+;;
+;;
+;;
+
+;; Markdown support
+(require 'markdown-mode)
+(require 'markdown-mode+)
+(setq markdown-command "/usr/bin/markdown")
+(add-to-list 'auto-mode-alist '("\\.markdown$" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md$" . markdown-mode))
+(setq markdown-css-paths `(,(expand-file-name "Documents/markdown.css")))
 
 ;;;
 ;;; Company Mode for auto-completion
