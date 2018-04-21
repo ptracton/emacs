@@ -267,7 +267,7 @@
 (load-file "~/.emacs.d/helm.el")
 
 
-
+(setq rainbow-delimiters-mode t)
 
 
 ;;;
@@ -286,7 +286,7 @@
 (global-set-key (kbd "<f6>") 'highlight-changes-visible-mode) 
 (global-set-key (kbd "S-<f6>") 'highlight-changes-remove-highlight)
 (global-set-key (kbd "<f7>") 'compile)
-(global-set-key (kbd "<f9>") 'fixmee-view-listing)
+(global-set-key (kbd "<f8>") 'fixmee-view-listing)
 ;(global-set-key (kbd "<f9>") 'nlinum-mode)
 (global-set-key (kbd "<f10>") 'flycheck-list-errors)
 
