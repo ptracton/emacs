@@ -1,12 +1,11 @@
 
 ;;
-;; http://doc.norang.ca/org-mode.html#GettingOrgModeWithGit
+;; http://doc.norang.ca/org-mode.html
 ;;
 
 ;;;
 ;;; Org Mode
 ;;;
-					;(add-to-list 'load-path "~/org-9.1.7/")
 (setq load-path (cons "~/org-9.1.7/lisp" load-path))
 (setq load-path (cons "~/org-9.1.7/contrib/lisp" load-path))
 (require 'org)
@@ -57,14 +56,6 @@
 ; Use the current window for C-c ' source editing
 (setq org-src-window-setup 'current-window)
 
-;; use this code in emacs-lisp for folding code.
-;(global-set-key (kbd "C-M-]") (lambda () (interactive) (org-cycle t)))
-;(global-set-key (kbd "M-]") (lambda ()
-;                              (interactive)
-;                              (ignore-errors
-;                                (end-of-defun)
- ;                               (beginning-of-defun))
-;                              (org-cycle)))
 
 (setq org-completion-use-ido t)
 
@@ -91,25 +82,6 @@
 ;; use syntax highlighting in org-file code blocks
 (setq org-src-fontify-natively t)
 
-;; language specific headers. I think this comes before the defaults
-;; for emacs-lisp I want results to be value
-;;(setq org-babel-default-header-args:emacs-lisp
-;      (cons '(:results . "value replace");
-;	    (assq-delete-all :results org-babel-default-header-args)))
-
-;; for everything else set default :results to output
-;(setq org-babel-default-header-args
-;      (cons '(:results . "output replace")
-;	    (assq-delete-all :results org-babel-default-header-args)))
-
-;; set default exports to both code and results
-;(setq org-babel-default-header-args
-;      (cons '(:exports . "both")
-;	    (assq-delete-all :exports org-babel-default-header-args)))
-
-;; Interpret "_" and "^" for export when braces are used.
-;(setq org-export-with-sub-superscripts '{})
-
 
 ;;* Agenda setup
 ; I don't want to see things that are done. turn that off here.
@@ -130,18 +102,6 @@
 
 ;; record time I finished a task when I change it to DONE
 (setq org-log-done 'time)
-
-;;* Export settings
-;(setq org-latex-default-packages-alist
-;      '(("AUTO" "inputenc" t);
-;	("" "url" nil)
-;	("" "minted" nil)
-;	("" "underscore" nil)
-;	("linktocpage,pdfstartview=FitH,colorlinks,
-;linkcolor=blue,anchorcolor=blue,
-;citecolor=blue,filecolor=blue,menucolor=blue,urlcolor=blue"
-;	 "hyperref" nil);
-;	("" "attachfile" nil)))
 
 
 ;; this is for code syntax highlighting in export
@@ -174,21 +134,6 @@
 	     helm-source-find-files)))
 
 
-;(defun jmax-insert-table (ncols tblname attributes)
-;  "Insert a table with NCOLS and named TBLNAME.
-;If you enter ATTRIBUTES they are inserted as LaTeX attributes."
-;  (interactive "nColumns: \nsName: \nsAttributes: ")
-;  (when (not (string= "" tblname))
-;    (insert (format "#+tblname: %s\n" tblname)))
-;  (when (not (string= "" attributes))
-;    (insert (format "#+attr_latex: %s\n" attributes)))
-;  (insert "#+caption: \n")
-;  (loop
-;   initially (insert "|")
-;   repeat ncols do (insert "  |" )
-;   finally (insert "\n"))
-;  (forward-line -2)
-;  (end-of-line))
 
 
 ;;** Asynchronous Python
@@ -287,25 +232,6 @@ Run this in the code block that is running."
    (s-trim (buffer-substring (point) (line-end-position)))))
 
 
-;; * Kitchinhub weekly report
-
-;(defun kitchinhub-weekly-report ()
-;  "Create and open the report due next Tuesday." 
-;  (let* ((report-dir (concat "reports/" (org-read-date nil nil "Tue")));
-;	 (status (unless (file-directory-p report-dir)
-;		   (make-directory report-dir t)))
-;	 (default-directory (expand-file-name (file-name-as-directory report-dir))))
- ;   (ox-manuscript-new-manuscript "weekly-progress-report")))
-
-;(defun kitchinhub-annual-review ()
-;  "Create and open the annual review."
-;  (let* ((review-dir (format "reports/annual-review-%s"
-;			     (calendar-extract-year (calendar-current-date))))
-;	 (status (unless (file-directory-p review-dir)
-;		   (make-directory review-dir t)))
-;	 (default-directory (expand-file-name (file-name-as-directory review-dir))))
- ;   (ox-manuscript-new-manuscript "annual-student-review")))
-;
 
 ;;
 ;; Use evince to view the PDF files
@@ -319,29 +245,4 @@ Run this in the code block that is running."
      (add-to-list 'org-file-apps '("\\.txt\\'" . "notepad.exe %s") t))
     ; ;;; Change .pdf association directly within the alist
      (setcdr (assoc "\\.pdf\\'" org-file-apps) "evince %s")))
-
-;;
-;; http://orgmode.org/manual/Code-evaluation-security.html
-;;
-;(setq org-agenda-include-diary t)
-
-;; enable prompt-free code running
-;(setq org-confirm-babel-evaluate nil
-;      org-confirm-elisp-link-function nil
-;      org-confirm-shell-link-function nil)
-
-
-;; record time I finished a task when I change it to DONE
-;(setq org-log-done 'time)
-
-;; this is for code syntax highlighting in export
-;(setq org-latex-listings 'minted)
-;(setq org-latex-minted-options
-;           '(("frame" "lines")
-;             ("fontsize" "\\scriptsize")
-;             ("linenos" "")))
-
-;; avoid getting \maketitle right after begin{document}
-;; you should put \maketitle if and where you want it.
-;(setq org-latex-title-command "")
 

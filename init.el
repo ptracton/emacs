@@ -79,7 +79,8 @@
 ;    org
 ;    org-projectile
 ;    org-magit
-;    org-plus-contrib
+					;    org-plus-contrib
+    bbdb
     neotree
     paradox
     anaconda-mode
