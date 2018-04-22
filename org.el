@@ -6,6 +6,7 @@
 (setq load-path (cons "~/org-9.1.7/contrib/lisp" load-path))
 (require 'org)
 (require 'org-checklist)
+
 ;;
 ;; Standard key bindings
 (global-set-key "\C-cl" 'org-store-link)
@@ -43,6 +44,20 @@
         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 
+(eval-after-load "ox-latex"
+
+  ;; update the list of LaTeX classes and associated header (encoding, etc.)
+  ;; and structure
+  '(add-to-list 'org-latex-classes
+                `("beamer"
+                  ,(concat "\\documentclass[presentation]{beamer}\n"
+                           "[DEFAULT-PACKAGES]"
+                           "[PACKAGES]"
+                           "[EXTRA]\n")
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+
 ;;
 ;; Agenda Setup
 ;;
@@ -51,10 +66,10 @@
 			       "~/ptracton/UCLA/EmbeddedFPGA/org/"
 			       "~/ptracton/UCLA/EmbeddedSoftware1"
 			       "~/ptracton/UCLA/EmbeddedSoftware1/org"
-			       "~/ptracton/UCLA/RaspberryPi/course_planning/"
 			       "~/ptracton/UCLA/RaspberryPi/"
-			       "~/ptracton/UCLA/LearningPython3/org/"
+			       "~/ptracton/UCLA/RaspberryPi/org"
 			       "~/ptracton/UCLA/LearningPython3/"
+			       "~/ptracton/UCLA/LearningPython3/org/"
                                )))
 
 ;;
