@@ -279,6 +279,7 @@
 
 (global-set-key (kbd "<f1>") 'shell)
 (global-set-key (kbd "<f2>") 'magit-status)
+(global-set-key (kbd "S-<f2>") 'vc-dir)
 (global-set-key (kbd "<f3>") 'find-tag)
 (global-set-key (kbd "<f4>") 'rainbow-delimiters-mode)
 (global-set-key (kbd "<f5>") 'recentf-open-files)
