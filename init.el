@@ -98,6 +98,7 @@
     flx-ido
     ;ido-ubiquitous
     diminish
+    imenu-list
     magit
     magit-gitflow
     magit-find-file))
@@ -156,8 +157,12 @@
 
 
 ;;
+;; imenu https://github.com/bmag/imenu-list
 ;;
-;;
+(imenu-list-minor-mode)
+(global-set-key (kbd "C-'") #'imenu-list-smart-toggle)
+(setq imenu-list-auto-resize t)
+(setq imenu-list-after-jump-hook nil)
 
 ;; Markdown support
 (require 'markdown-mode)
