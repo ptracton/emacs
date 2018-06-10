@@ -8,7 +8,9 @@
     ("ff7625ad8aa2615eae96d6b4469fcc7d3d20b2e1ebc63b761a349bebbb9d23cb" "eb0a314ac9f75a2bf6ed53563b5d28b563eeba938f8433f6d1db781a47da1366" "cc60d17db31a53adf93ec6fad5a9cfff6e177664994a52346f81f62840fe8e23" "18a33cdb764e4baf99b23dcd5abdbf1249670d412c6d3a8092ae1a7b211613d5" "9122dfb203945f6e84b0de66d11a97de6c9edf28b3b5db772472e4beccc6b3c5" "a3132bd39a977ddde4c002f8bd0ef181414c3fbe9228e3643b999491192680ad" default)))
  '(ede-project-directories
    (quote
-    ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo"))))
+    ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo")))
+)
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -99,6 +101,8 @@
     ;ido-ubiquitous
     diminish
     imenu-list
+    plantuml-mode
+    use-package
     magit
     magit-gitflow
     magit-find-file))
@@ -161,7 +165,7 @@
 ;;
 (imenu-list-minor-mode)
 (global-set-key (kbd "C-'") #'imenu-list-smart-toggle)
-(setq imenu-list-auto-resize t)
+;(setq imenu-list-auto-resize t)
 (setq imenu-list-after-jump-hook nil)
 
 ;; Markdown support
@@ -219,6 +223,13 @@
   (setq buffer-display-table (make-display-table))
   (aset buffer-display-table ?\^M []))
 
+;;
+;; plantuml-mode https://github.com/skuro/plantuml-mode
+;;
+
+;; Enable plantuml-mode for PlantUML files
+(add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+
 ;;;
 ;;;
 ;;;
@@ -273,6 +284,14 @@
 
 
 (setq rainbow-delimiters-mode t)
+
+;;
+;; Turn on flycheck everywhere
+;;
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
 
 
 ;;;
