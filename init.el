@@ -9,7 +9,9 @@
  '(ede-project-directories
    (quote
     ("/home/ptracton/src/software/experimental/C/STM32/STM32F3/uart_echo")))
-)
+ '(package-selected-packages
+   (quote
+    (flycheck-pos-tip use-package plantuml-mode smex realgud rainbow-delimiters pylint py-autopep8 paradox neotree moe-theme markdown-mode+ magit-gitflow magit-find-file json-mode jinja2-mode jedi-direx imenu-list helm-projectile helm-make helm-ls-svn helm-ls-git helm-flycheck helm-cscope helm-company graphviz-dot-mode flycheck-color-mode-line flx-ido flatland-black-theme fixmee firecode-theme elpy dracula-theme diminish diff-hl dark-krystal-theme company-math company-jedi company-c-headers company-auctex company-anaconda cherry-blossom-theme bbdb))))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -68,6 +70,8 @@
     fixmee
     flycheck
     flycheck-color-mode-line
+    pos-tip
+;    flycheck-pos-tip
     helm
     helm-cscope
     helm-flycheck
@@ -293,6 +297,10 @@
   :ensure t
   :init (global-flycheck-mode))
 
+;; git clone https://github.com/flycheck/flycheck-pos-tip.git
+(load "~/.emacs.d/elpa/flycheck-pos-tip/flycheck-pos-tip.el")
+(with-eval-after-load 'flycheck
+  (flycheck-pos-tip-mode))
 
 ;;;
 ;;; Key Bindings
