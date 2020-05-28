@@ -2,29 +2,21 @@
 ;;; EMACS CONFIGURATION
 ;;;
 
+(setq package-check-signature nil)
+
 ;;; CODE:
 (require 'package)
+(package-initialize)
+
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/"))
 
-;(add-to-list 'package-archives
-;             '("gnu" . "http://elpa.gnu.org/packages/"))
-
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
-
-(add-to-list 'package-archives
-             '("elpy" . "http://jorgenschaefer.github.io/packages/"))
-
-;(add-to-list 'package-archives
-;             '("org" . "http://orgmode.org/elpa/"))
-(package-initialize)
-
-;;; 
+;;;
 ;;; List of packages to install and use
 ;;;
 (defconst demo-packages
   '(
+    use-package
     tramp
     windsize
     imenu-list
@@ -32,20 +24,35 @@
     py-autopep8
     pylint
     projectile
-    flycheck
-    flycheck-color-mode-line
+    treemacs-projectile
     helm
     helm-flycheck
     helm-projectile
     helm-gtags
+    helm-xref
     org
     magit
     diff-hl
     smex
     rainbow-delimiters
     dracula-theme
+    imenu
+    lsp-mode
+    lsp-ui
+    lsp-treemacs
+;    treemacs-magit
+;    treemacs-icons-dired
+    helm
+    helm-lsp
+    hydra
+    flycheck
+    flycheck-color-mode-line
+    plantuml-mode
+    company
+    company-box
+    company-lsp
+    auctex
     anzu))
-
 
 ;;;
 ;;; Function to install packages
@@ -63,6 +70,7 @@
 ;;; Actually install the packages
 ;;;
 (install-packages)
+
 
 ;;;
 ;;; General Setup
@@ -95,6 +103,104 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Flycheck
+;; https://www.flycheck.org/en/latest/
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'flycheck)
+(add-hook 'after-init-hook 'global-flycheck-mode)
+(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode)
+(setq flycheck-check-syntax-automatically '(mode-enabled save))
+(global-flycheck-mode t)
+
+
+(require 'company-box)
+(add-hook 'company-mode-hook 'company-box-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LSP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq lsp-keymap-prefix "C-l")
+(require 'lsp-mode)
+(require 'lsp-clients)
+(add-hook 'python-mode-hook #'lsp)
+(add-hook 'perl-mode-hook #'lsp)
+(add-hook 'verilog-mode-hook #'lsp)
+(add-hook 'vhdl-mode-hook #'lsp)
+(add-hook 'c-mode-hook #'lsp)
+(add-hook 'c++-mode-hook #'lsp)
+(add-hook 'asm-mode-hook #'lsp)
+(add-hook 'tex-mode-hook #'lsp)
+(add-hook 'json-mode-hook #'lsp)
+(setq lsp-prefer-capf t)
+(setq lsp-idle-delay 0.500)
+
+;;
+;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
+;;
+(use-package lsp-mode
+  ;; ..
+
+  :config
+  (setq lsp-prefer-flymake nil) ;; Prefer using lsp-ui (flycheck) over flymake.
+
+  ;; ..
+  )
+
+(use-package lsp-ui
+  :requires lsp-mode flycheck
+  :config
+
+  (setq lsp-ui-doc-enable t
+        lsp-ui-doc-use-childframe t
+        lsp-ui-doc-position 'top
+        lsp-ui-doc-include-signature t
+        lsp-ui-sideline-enable nil
+        lsp-ui-flycheck-enable t
+        lsp-ui-flycheck-list-position 'right
+        lsp-ui-flycheck-live-reporting t
+        lsp-ui-peek-enable t
+        lsp-ui-peek-list-width 60
+        lsp-ui-peek-peek-height 25)
+
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+
+(use-package helm)
+
+(use-package helm-lsp
+  :config
+  (defun netrom/helm-lsp-workspace-symbol-at-point ()
+    (interactive)
+    (let ((current-prefix-arg t))
+      (call-interactively #'helm-lsp-workspace-symbol)))
+
+  (defun netrom/helm-lsp-global-workspace-symbol-at-point ()
+    (interactive)
+    (let ((current-prefix-arg t))
+      (call-interactively #'helm-lsp-global-workspace-symbol))))
+
+
+(use-package company
+  :config
+  (setq company-idle-delay 0.3)
+
+  (global-company-mode 1)
+
+  (global-set-key (kbd "C-<tab>") 'company-complete))
+
+(use-package company-lsp
+  :requires company
+  :config
+  (push 'company-lsp company-backends)
+
+   ;; Disable client-side cache because the LSP server does a better job.
+  (setq company-transformers nil
+        company-lsp-async t
+        company-lsp-cache-candidates nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; ANZU
 ;; https://github.com/syohex/emacs-anzu
 ;;
@@ -106,40 +212,19 @@
 (set-face-attribute 'anzu-mode-line nil
                     :foreground "yellow" :weight 'bold)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(anzu-deactivate-region t)
- '(anzu-mode-lighter "")
- '(anzu-replace-threshold 50)
- '(anzu-replace-to-string-separator " => ")
- '(anzu-search-threshold 1000)
- '(custom-safe-themes
-   (quote
-    ("274fa62b00d732d093fc3f120aca1b31a6bb484492f31081c1814a858e25c72e" default)))
- '(helm-gtags-auto-update t)
- '(helm-gtags-ignore-case t)
- '(helm-gtags-path-style (quote relative))
- '(package-selected-packages
-   (quote
-    (pylint py-autopep8 elpy auctex-latexmk smex rainbow-delimiters magit helm-projectile helm-flycheck flycheck-color-mode-line dracula-theme diff-hl anzu))))
-
-(define-key isearch-mode-map [remap isearch-query-replace]  #'anzu-isearch-query-replace)
-(define-key isearch-mode-map [remap isearch-query-replace-regexp] #'anzu-isearch-query-replace-regexp)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; imenu
 ;; https://github.com/bmag/imenu-list
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(imenu-list-minor-mode)
-(global-set-key (kbd "C-'") #'imenu-list-smart-toggle)
+;;(imenu-list-minor-mode)
+;;(global-set-key (kbd "C-'") #'imenu-list-smart-toggle)
                                         ;(setq imenu-list-auto-resize t)
-(setq imenu-list-after-jump-hook nil)
-(setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+;;(setq imenu-list-after-jump-hook nil)
+;;(setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+
+(lsp-treemacs-sync-mode 1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -183,18 +268,6 @@
 (advice-add 'svn-status-update-modeline :after #'diff-hl-update)
 (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; SMEX
-;; https://github.com/nonsequitur/smex
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(require 'smex)
-;(smex-initialize)
-;(global-set-key (kbd "M-x") 'smex)
-;(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Projectile
@@ -208,17 +281,75 @@
 (setq projectile-require-project-root nil)
 (setq projectile-switch-project-action 'projectile-dired)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Flycheck
-;; https://www.flycheck.org/en/latest/
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'flycheck)
-(add-hook 'after-init-hook 'global-flycheck-mode)
-(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode)
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
-(global-flycheck-mode t)
+
+(use-package treemacs
+  :hook
+  ;; slightly lower the size of treemacs window
+  ((treemacs-mode . (lambda ()
+                      (setq buffer-face-mode-face '(:height .88))
+                      (buffer-face-mode))))
+  :config
+  (progn
+    (setq treemacs-follow-after-init t
+          treemacs-recenter-after-file-follow t
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-eldoc-display nil
+          treemacs-collapse-dirs (if (executable-find "python") 3 0)
+          treemacs-silent-refresh t
+          treemacs-silent-filewatch t
+          treemacs-change-root-without-asking t
+          treemacs-sorting 'alphabetic-asc
+          treemacs-show-hidden-files t
+          treemacs-never-persist nil
+          treemacs-is-never-other-window t)
+
+    ;; set the correct python3 executable path. This is needed for
+    ;; treemacs-git-mode extended
+    (setq treemacs-python-executable (executable-find "python"))
+
+    ;; highlight current line in fringe for treemacs window
+    (treemacs-fringe-indicator-mode)
+
+    (defun doom-themes-hide-modeline ()
+      (setq mode-line-format nil))
+
+    ;; The modeline isn't useful in treemacs
+    (add-hook 'treemacs-mode-hook #'doom-themes-hide-modeline)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-resize-icons 16)
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+
+  :bind
+  (:map global-map
+        ("C-c f" . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)))
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :bind (:map global-map
+              ("C-c o t" . treemacs-projectile)))
+
+(use-package treemacs-icons-dired
+  :after treemacs dired
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after treemacs magit)
+
+;; Integration between lsp-mode and treemacs and implementation of treeview
+;; controls using treemacs as a tree renderer.
+;; https://github.com/emacs-lsp/lsp-treemacs
+(use-package lsp-treemacs :defer 3
+  :config
+  (lsp-treemacs-sync-mode 1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -296,19 +427,6 @@
 (add-hook 'verilog-mode-hook 'helm-gtags-mode)
 (add-hook 'python-mode-hook 'helm-gtags-mode)
 
-;; customize
-
-
-;; key bindings
-(with-eval-after-load 'helm-gtags
-  (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
-  (define-key helm-gtags-mode-map (kbd "M-r") 'helm-gtags-find-rtag)
-  (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
-  (define-key helm-gtags-mode-map (kbd "M-g M-p") 'helm-gtags-parse-file)
-  (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
-  (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history)
-  (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Python Programming
@@ -338,7 +456,7 @@
 ;;           (lambda ()
 ;;             (setq flycheck-python-pylint-executable "/user/tractp1/links/scratch/anaconda3/bin/pylint")
 ;;             (setq flycheck-pylintrc "~/.pylintrc"))
-	  
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -382,6 +500,8 @@
                (lambda ()
                 (font-lock-add-keywords nil
 					'(("\\<\\(REPAIRED\\|STUBBED\\):" 1 font-lock-keyword-face t)))))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -429,89 +549,8 @@
   (add-to-list 'auto-mode-alist '("\\.vh\\'" . verilog-mode))
   (add-to-list 'auto-mode-alist '("\\.f\\'" . text-mode))
   (add-to-list 'auto-mode-alist '("\\.f\\'" . text-mode))
+  (add-to-list 'auto-mode-alist '("\\.uml\\'" . plantuml-mode))
   )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Utilities
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun kill-all-buffers ()
-  "Kill all buffers.  Leave one frame open."
-  (interactive)
-  (mapc 'kill-buffer (buffer-list))
-  (delete-other-windows))
-
-
-(defun kill-other-buffers ()
-    "Kill all other buffers but this one.  Leave one frame open."
-    (interactive)
-    (mapc 'kill-buffer
-          (delq (current-buffer) (buffer-list)))
-    (delete-other-windows))
-
-
-(defun unfill-paragraph ()
-  "Unfill paragraph at or after point."
-  (interactive "*")
-  (let ((fill-column most-positive-fixnum))
-    (fill-paragraph nil (region-active-p))))
-
-
-(defun double-space ()
-  "Make buffer look approximately double-spaced."
-  (interactive)
-  (setq line-spacing 10))
-
-
-(defun single-space ()
-  "Make buffer single-spaced."
-  (interactive)
-  (setq line-spacing nil))
-
-;;* utility functions
-;http://www.gnu.org/software/emacs/manual/html_node/elisp/File-Name-Expansion.html#File-Name-Expansion
-
-(defun get-path()
-  "Opens dired so you can navigate to a file to insert a path to it in the current buffer."
-  (interactive)
-  ; store current point so we can change back to it later
-  (setq current_point (point-marker))
-  ; now call dired to navigate to the path you want
-  (dired nil))
-
-
-(defun insert-relative-path()
-  "Inserts the relative path between the original buffer and current file selected in dired."
-  (interactive)
-  (let ((selected_file (dired-get-filename)))
-    (switch-to-buffer (marker-buffer current_point))
-    (goto-char current_point)
-    (insert (file-relative-name selected_file))))
-
-
-(defun insert-absolute-path()
-  "Inserts the absolute path to the file selected in dired to the previous buffer."
-  (interactive)
-  (let ((selected_file (dired-get-filename))) ; this is the file the cursor is on
-    (switch-to-buffer (marker-buffer current_point))
-    (goto-char current_point)
-    (insert  (expand-file-name selected_file))))
-
-
-(defun insert-path (&optional arg)
-  "Insert relative path unless prefix is used, then absolute path"
-  (interactive "P")
-  (if (equal arg nil)
-      (insert-relative-path)
-    (insert-absolute-path)))
-
-
-(defun insert-buffer-filename()
-  "Inserts filename associated with current buffer."
-  (interactive)
-  (insert (buffer-file-name)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -526,14 +565,31 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; AUTO SET UP
+;; Auctex
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+(setq-default TeX-master nil)
+(setq TeX-parse-self t)
+(setq TeX-auto-save t)
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("d0fe9efeaf9bbb6f42ce08cd55be3f63d4dfcb87601a55e36c3421f2b5dc70f3" default)))
+ '(lsp-treemacs-sync-mode nil)
+ '(package-selected-packages
+   (quote
+    (company-box treemacs-icons-dired treemacs-magit treemacs-projectile helm-imenu lsp-treemacs plantuml-mode windsize use-package smex rainbow-delimiters pylint py-autopep8 magit lsp-ui imenu-list hydra helm-xref helm-projectile helm-lsp helm-gtags helm-flycheck flycheck-color-mode-line elpy dracula-theme diff-hl company-lsp auctex anzu))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
