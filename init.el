@@ -63,6 +63,7 @@
 
 ; Show line numbers everywhere
 (line-number-mode t)
+(global-display-line-numbers-mode t)
 
 ; Show the column numbers
 (column-number-mode t)
@@ -812,15 +813,17 @@
 
 ;; https://github.com/daviwil/dotfiles/blob/master/Emacs.org#org-mode
 ;; Adjust font and size of headings in ORG mode
-(dolist (face '((org-level-1 . 1.3)
-                    (org-level-2 . 1.2)
-                    (org-level-3 . 1.1)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-  (set-face-attribute (car face) nil :font "Cantarell" :weight 'medium :height (cdr face)))
+;; https://emacs.stackexchange.com/questions/62981/error-invalid-face-org-level-1
+;; (with-eval-after-load 'org-faces 
+;;   (face '((org-level-1 . 1.3)
+;;           (org-level-2 . 1.2)
+;;           (org-level-3 . 1.1)
+;;           (org-level-4 . 1.0)
+;;           (org-level-5 . 1.1)
+;;           (org-level-6 . 1.1)
+;;           (org-level-7 . 1.1)
+;;           (org-level-8 . 1.1)))
+;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'medium :height (cdr face)))
 
 (use-package org-roam
   :ensure t
@@ -850,8 +853,70 @@
         org-journal-date-format "%A, %d %B %Y"))
 
 ;(add-to-list 'org-agenda-files "/home/ptracton/Synology/ptracton/org/agenda.org")
-(setq org-agenda-files (list "/home/ptracton/Synology/ptracton/org/agenda.org"))
+(setq org-agenda-files 
+      '("/home/ptracton/Synology/ptracton/org/agenda.org"
+       "/home/ptracton/Synology/ptracton/org/birthdays.org"
+       "/home/ptracton/Synology/ptracton/org/Medtronic.org"
+       ))
 (setq org-directory "/home/ptracton/Synology/ptracton/org/")
+
+;; https://github.com/daviwil/emacs-from-scratch/blob/master/show-notes/Emacs-06.org
+(setq org-agenda-start-with-log-mode t) ;Present a log of what you worked on today
+(setq org-log-done 'time)
+(setq org-log-into-drawer t)
+
+(setq org-todo-keywords
+  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+;; Configure custom agenda views
+(setq org-agenda-custom-commands
+  '(("d" "Dashboard"
+     ((agenda "" ((org-deadline-warning-days 7)))
+      (todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))
+      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+
+    ("n" "Next Tasks"
+     ((todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))))
+
+
+    ("W" "Work Tasks" tags-todo "+work")
+
+    ;; Low-effort next actions
+    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ((org-agenda-overriding-header "Low Effort Tasks")
+      (org-agenda-max-todos 20)
+      (org-agenda-files org-agenda-files)))
+
+    ("w" "Workflow Status"
+     ((todo "WAIT"
+            ((org-agenda-overriding-header "Waiting on External")
+             (org-agenda-files org-agenda-files)))
+      (todo "REVIEW"
+            ((org-agenda-overriding-header "In Review")
+             (org-agenda-files org-agenda-files)))
+      (todo "PLAN"
+            ((org-agenda-overriding-header "In Planning")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "BACKLOG"
+            ((org-agenda-overriding-header "Project Backlog")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "READY"
+            ((org-agenda-overriding-header "Ready for Work")
+             (org-agenda-files org-agenda-files)))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "COMPLETED"
+            ((org-agenda-overriding-header "Completed Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "CANC"
+            ((org-agenda-overriding-header "Cancelled Projects")
+             (org-agenda-files org-agenda-files)))))))
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package websocket
