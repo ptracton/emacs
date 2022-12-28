@@ -313,6 +313,9 @@
 (use-package magit-todos
   :ensure t)
 
+(use-package forge
+  :after magit)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DIFF HL
 ;; https://github.com/dgutov/diff-hl

@@ -11,7 +11,7 @@
  '(helm-completion-style 'emacs)
  '(org-agenda-files '("~/Synology/ptracton/org/agenda.org"))
  '(package-selected-packages
-   '(org-bullets org-roam-ui org-super-agenda org-modern lsp-mode yasnippet lsp-treemacs helm-lsp projectile hydra flycheck company avy which-key helm-xref dap-mode))
+   '(forge org-bullets org-roam-ui org-super-agenda org-modern lsp-mode yasnippet lsp-treemacs helm-lsp projectile hydra flycheck company avy which-key helm-xref dap-mode))
  '(size-indication-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
