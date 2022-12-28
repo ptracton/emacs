@@ -1,3 +1,5 @@
+;; -*- mode: emacs-lisp -*-
+
 ;;;
 ;;; EMACS CONFIGURATION
 ;;;
@@ -6,320 +8,267 @@
 
 ;;; CODE:
 (require 'package)
-(package-initialize)
 
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/"))
 
+;; keep the installed packages in .emacs.d
+(setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
+(package-initialize)
+(package-refresh-contents)
 
-;;;
-;;; Function to install packages
-;;;
-(defun install-packages ()
-  "Install all required packages."
-  (interactive)
-  (unless package-archive-contents
-    (package-refresh-contents))
-  (dolist (package demo-packages)
-    (unless (package-installed-p package)
-      (package-install package))))
+;; update the package metadata is the local cache is missing
+(unless package-archive-contents
+  (package-refresh-contents))
 
-;;;
-;;; List of packages to install and use
-;;;
-(defconst demo-packages
-  '(
-    use-package
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 
-    ;; Python Packages
-    elpy
-    py-autopep8
-    pylint
-    tramp
-    
-    ;; Development
-    magit
-    diff-hl
-    lsp-mode
-    lsp-ui
-    lsp-jedi
-    flycheck
-    flycheck-color-mode-line
+(require 'use-package)
+(setq use-package-verbose t)
 
-    ;; Helm
-    helm
-    helm-flycheck
-    helm-lsp
-    helm-icons
-    
-    ;; Projectil
-    projectile
-    helm-projectile
-
-    ;; treemacs
-    treemacs
-    treemacs-all-the-icons
-
-    ;; Org
-    org
-
-    ;; Auctex
-    auctex
-    
-    ;; UI
-    anzu
-    windsize
-    rainbow-delimiters
-    dracula-theme
-    imenu
-    imenu-list
-    plantuml-mode
-    markdown-mode
-    ))
-
-
-;;;
-;;; Actually install the packages
-;;;
-(install-packages)
-
-
-;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; General Setup
-;;;
-(setq user-full-name "Philip Tracton")
-(setq user-mail-address "ptracton@gmail.com")
-(global-linum-mode t)
-(line-number-mode t)
-(column-number-mode t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq user-full-name "Phil Tracton"
+      user-mail-address "ptracton@gmail.com")
+
+;; Always load newest byte code
+(setq load-prefer-newer t)
+
+;; reduce the frequency of garbage collection by making it happen on
+;; each 50MB of allocated data (the default is on every 0.76MB)
+(setq gc-cons-threshold 50000000)
+
+;; warn when opening files bigger than 100MB
+(setq large-file-warning-threshold 100000000)
+
+;; the blinking cursor is nothing, but an annoyance
+(blink-cursor-mode -1)
+
+;; disable the annoying bell ring
+(setq ring-bell-function 'ignore)
+
+;; disable startup screen
 (setq inhibit-startup-screen t)
+
+;; nice scrolling
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+
+;; Show the time and system load
+(display-time-mode t)
+
+; Show line numbers everywhere
+(line-number-mode t)
+
+; Show the column numbers
+(column-number-mode t)
+
+; Show the size of the file
+(size-indication-mode t)
+
+; Set the title frame to the full path to the file
 (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+
+;All files have a newline at the end
 (setq require-final-newline 't)
+
+; https://www.emacswiki.org/emacs/ShowParenMode
 (show-paren-mode 1)
 
-(global-visual-line-mode 1) ;; how long lines are handled.  This
-;; appears to wrap long lines visually,
-;; but not add line-returns
+; https://www.gnu.org/software/emacs/manual/html_node/emacs/Visual-Line-Mode.html#:~:text=To%20turn%20on%20Visual%20Line,Line%20mode)%20%27%20menu%20item.
+(global-visual-line-mode 1)
 
-(global-font-lock-mode t)   ;; turn on font-lock mode everywhere
+;; turn on font-lock mode everywhere
+(global-font-lock-mode t)
 
-(setq backup-inhibited t)  ;; disable backup file creation
+  ;; disable backup file creation
+(setq backup-inhibited t)
 
-(fset 'yes-or-no-p 'y-or-n-p) ; answer with y/n instead of yes/no
+; answer with y/n instead of yes/no
+(fset 'yes-or-no-p 'y-or-n-p)
 
-;;; https://www.emacswiki.org/emacs/NoTabs
+; https://www.emacswiki.org/emacs/NoTabs
+ ; Set tabs width to 4 space
 (setq tab-width 4)
+
+; Turn all tabs into spaces
 (setq-default indent-tabs-mode nil)
 
+;; Newline at end of file
+(setq require-final-newline t)
+
+;; revert buffers automatically when underlying files are changed externally
+(global-auto-revert-mode t)
+
+; Set the system to always use utf-8 and not ascii
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; MAGIT
-;; https://magit.vc/
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'magit)
-
-;; https://pages.sachachua.com/.emacs.d/Sacha.html#orgd6b0c8c
-(setq vc-diff-switches '("-b" "-B" "-u"))
-(setq vc-git-diff-switches nil)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; DIFF HL
-;; https://github.com/dgutov/diff-hl
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(global-diff-hl-mode)
-(advice-add 'svn-status-update-modeline :after #'diff-hl-update)
-(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; ANZU
-;; https://github.com/syohex/emacs-anzu
-;;
+;;; built-in packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(require 'anzu)
-(global-anzu-mode +1)
+; https://github.com/emacs-mirror/emacs/blob/master/lisp/paren.el
+(use-package paren
+  :config
+  (show-paren-mode +1))
 
-(set-face-attribute 'anzu-mode-line nil
-                    :foreground "yellow" :weight 'bold)
+; https://www.emacswiki.org/emacs/ElectricPair#:~:text=From%20the%20EmacsManual%2C,electric%2Dpair%2Dmode%27%20.
+(use-package elec-pair
+  :config
+  (electric-pair-mode +1))
+
+;; highlight the current line
+(use-package hl-line
+  :config
+  (global-hl-line-mode +1))
+
+; https://www.emacswiki.org/emacs/AbbrevMode
+(use-package abbrev
+  :config
+  (setq save-abbrevs 'silently)
+  (setq-default abbrev-mode t))
+
+(defconst bozhidar-savefile-dir (expand-file-name "savefile" user-emacs-directory))
+
+; https://www.emacswiki.org/emacs/RecentFiles
+(use-package recentf
+  :config
+  (setq recentf-save-file (expand-file-name "recentf" bozhidar-savefile-dir)
+        recentf-max-saved-items 500
+        recentf-max-menu-items 15
+        ;; disable recentf-cleanup on Emacs start, because it can cause
+        ;; problems with remote files
+        recentf-auto-cleanup 'never)
+  (recentf-mode +1))
+
+;; The 6 Emacs Settings Every User Should Consider
+;; https://www.youtube.com/watch?v=51eSeqcaikM
+
+;; a really big number slows down emacs start up
+;; M-n for next and M-p for previous
+(setq history-length 25)
+(savehist-mode 1)
+
+; remember location and jump there in the file when opening a file again
+(save-place-mode 1)
+
+;; seperate the custom variables from the handwritten sections
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(load custom-file 'noerror 'nomessage)
+
+;; prevent using pop up UI dialog boxes
+(setq use-dialog-box nil)
+
+;; revert buffers when the underlying file has changed
+(global-auto-revert-mode 1)
+
+;https://github.com/emacsmirror/diminish
+(use-package diminish
+  :ensure t
+  :config
+  (diminish 'abbrev-mode)
+  (diminish 'flyspell-mode)
+  (diminish 'flyspell-prog-mode)
+  (diminish 'eldoc-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; windsize
-;; https://github.com/grammati/windsize
-;;
-;; Then use C-S-<left>, C-S-<right>, C-S-<up>, and C-S-<down> to move window edges.
-;; Resizes by 8 columns or 4 rows by default. Change that by setting windsize-cols and/or windsize-rows.
-;;
+;; Dashboard
+;; https://github.com/emacs-dashboard/emacs-dashboard
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'windsize)
-(windsize-default-keybindings)
 
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+;; Set the title
+(setq dashboard-banner-logo-title "Welcome to Phil's Emacs Dashboard")
+;; Set the banner
+(setq dashboard-startup-banner "Phil's Emacs Dashboard")
+;; Value can be
+;; - nil to display no banner
+;; - 'official which displays the official emacs logo
+;; - 'logo which displays an alternative emacs logo
+;; - 1, 2 or 3 which displays one of the text banners
+;; - "path/to/your/image.gif", "path/to/your/image.png" or "path/to/your/text.txt" which displays whatever gif/image/text you would prefer
+;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
+
+;; Content is not centered by default. To center, set
+;; (setq dashboard-center-content t)
+
+;; ;; To disable shortcut "jump" indicators for each section, set
+;; (setq dashboard-show-shortcuts nil)
+
+(setq dashboard-items '((recents  . 5)
+                        (bookmarks . 5)
+                        (projects . 5)
+                        (agenda . 5)
+                        (registers . 5)))
+
+;; (setq dashboard-item-names '(("Recent Files:" . "Recently opened files:")
+;;                              ("Agenda for today:" . "Today's agenda:")
+;;                              ("Agenda for the coming week:" . "Agenda:")))
+
+;;(setq dashboard-set-heading-icons t)
+(setq dashboard-set-file-icons t)
+(setq dashboard-set-navigator t)
+(setq dashboard-set-init-info t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Flycheck
 ;; https://www.flycheck.org/en/latest/
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'flycheck)
-(add-hook 'after-init-hook 'global-flycheck-mode)
-(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode)
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
-(global-flycheck-mode t)
 
-;;;
-;;; pylint: https://bitbucket.org/logilab/pylint/pull-request/141/pylintel-missing-dependency-on-tramp/diff
-;;;
-(require 'tramp)
-(autoload 'pylint "pylint")
-(add-hook 'python-mode-hook 'pylint-add-menu-items)
-(add-hook 'python-mode-hook 'pylint-add-key-bindings)
-;; (add-hook 'python-mode-hook
-;;           (lambda ()
-;;             (setq flycheck-python-pylint-executable "/user/tractp1/links/scratch/anaconda3/bin/pylint")
-;;             (setq flycheck-pylintrc "~/.pylintrc"))
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Python Programming
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(elpy-enable)
-
-(setq python-indent-offset 4)
-
-;; https://realpython.com/emacs-the-best-python-editor/
-;; use flycheck not flymake with elpy
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
-
-(require 'py-autopep8)
-(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; LSP
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq lsp-keymap-prefix "C-l")
-(require 'lsp-mode)
-;(require 'lsp-clients)
-(add-hook 'python-mode-hook #'lsp)
-(add-hook 'perl-mode-hook #'lsp)
-(add-hook 'verilog-mode-hook #'lsp)
-(add-hook 'vhdl-mode-hook #'lsp)
-(add-hook 'c-mode-hook #'lsp)
-(add-hook 'c++-mode-hook #'lsp)
-(add-hook 'asm-mode-hook #'lsp)
-(add-hook 'tex-mode-hook #'lsp)
-(add-hook 'json-mode-hook #'lsp)
-(setq lsp-prefer-capf t)
-(setq lsp-idle-delay 0.500)
-(setq lsp-vhdl-server-path "/usr/local/bin/vhdl-tool")
-
- ;;
-;; https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/
-;;
-(use-package lsp-mode
-  ;; ..
-
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode)
   :config
-  (setq lsp-prefer-flymake nil) ;; Prefer using lsp-ui (flycheck) over flymake.
-  :hook
-  (LaTeX-mode . lsp)
-  :commands lsp
-  ;; ..
-  )
+  (setq flycheck-display-errors-function
+        #'flycheck-display-error-messages-unless-error-list)
 
-;; (use-package lsp-jedi
-;;   :ensure t
-;;   :config
-;;   (with-eval-after-load "lsp-mode"
-;;     (add-to-list 'lsp-disabled-clients 'pyls)
-;;     (add-to-list 'lsp-enabled-clients 'jedi)))
+  (setq flycheck-indication-mode nil))
 
-(use-package lsp-ui
-  :requires lsp-mode flycheck
+(use-package flycheck-pos-tip
+  :ensure t)
+
+(with-eval-after-load 'flycheck
+  (flycheck-pos-tip-mode))
+
+;(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Projectile
+;; https://github.com/bbatsov/projectile
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package projectile
+  :ensure t
+  :init
+  (setq projectile-project-search-path '("~/src/software/STM32L423KC" "~/src/hardware/wide_memory" "~/src/hardware/project_stub" "~/src/stm32_cmsis_nn/firmware/L432KC" "~/STM32Cube/Repository/" "~/src/DTREE"))
   :config
-
-  (setq lsp-ui-doc-enable t
-        lsp-ui-doc-use-childframe t
-        lsp-ui-doc-position 'top
-        lsp-ui-doc-include-signature t
-        lsp-ui-sideline-enable nil
-        lsp-ui-flycheck-enable t
-        lsp-ui-flycheck-list-position 'right
-        lsp-ui-flycheck-live-reporting t
-        lsp-ui-peek-enable t
-        lsp-ui-peek-list-width 60
-        lsp-ui-peek-peek-height 25)
-  )
-
-  
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  ;; I typically use this keymap prefix on macOS
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  ;; On Linux, however, I usually go with another one
+  (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
+  (global-set-key (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode +1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Verilog LSP Setup
-;; https://github.com/suoto/hdl_checker
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'use-package)
-(require 'lsp-verilog)
-(add-hook 'verilog-mode-hook #'lsp-deferred)
-;((verilog-mode (lsp-clients-svlangserver-workspace-additional-dirs . ("~/src/"))
-;               (lsp-clients-svlangserver-includeIndexing . ("src/**/*.{sv,svh}"))
-;               (lsp-clients-svlangserver-excludeIndexing . ("src/test/**/*.{sv,svh}"))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Function to remove ^M from end of line
-;;
-;; http://stackoverflow.com/questions/730751/hiding-m-in-emacs
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun remove-dos-eol ()
-  "Do not show ^M in files containing mixed UNIX and DOS line endings."
-  (interactive)
-  (setq buffer-display-table (make-display-table))
-  (aset buffer-display-table ?\^M []))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; C Programming
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(semantic-mode 1)
-(global-ede-mode 1)                      ; Enable the Project management system
-(setq c-basic-indent 4)
-(require 'semantic/ia)
-(require 'semantic/bovine/gcc)
-(global-semantic-highlight-func-mode 1)
-(global-semantic-idle-local-symbol-highlight-mode 1)
-(global-semantic-idle-scheduler-mode  1)
-(global-semantic-idle-completions-mode  1)
-(global-semantic-idle-summary-mode  1)
-
-(defun my-semantic-hook ()
-  (imenu-add-to-menubar "TAGS"))
-(add-hook 'semantic-init-hooks 'my-semantic-hook)
-
-(add-hook 'c-mode-common-hook   'hs-minor-mode)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Helm
 ;; https://tuhdo.github.io/helm-intro.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package helm)
-(helm-mode 1)
+(use-package helm
+  :ensure t
+  :config
+  (helm-mode 1)
+;  (helm-autoresize-modenn t)
+  )
 (setq helm-semantic-fuzzy-match t
       helm-imenu-fuzzy-match    t)
 (setq helm-locate-fuzzy-match t)
@@ -327,33 +276,104 @@
       helm-recentf-fuzzy-match    t)
 (setq helm-lisp-fuzzy-completion t)
 
-(require 'helm-eshell)
 
-(add-hook 'eshell-mode-hook
-          #'(lambda ()
-              (define-key eshell-mode-map (kbd "C-c C-l")  'helm-eshell-history)))
+;; https://github.com/bbatsov/helm-projectile
+;; https://tuhdo.github.io/helm-projectile.html
+;; (use-package helm-projectile
+;;   :ensure t
+;;   :config
+;;   (helm-projectile-on)
+;;   )
+
+;; (use-package helm-flycheck
+;;   :ensure t) ;; Not necessary if using ELPA package
+
+(eval-after-load 'flycheck
+  '(define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
+
+(setq projectile-completion-system 'helm)
+(setq projectile-switch-project-action 'helm-projectile-find-file)
+(setq projectile-switch-project-action 'helm-projectile)
+(use-package helm-icons
+  :ensure t)
 (helm-icons-enable)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Projectile
-;; https://projectile.readthedocs.io/en/latest/
-;;
+;; GIT
+;; https://magit.vc/
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'projectile)
+(use-package magit
+  :ensure t
+  :bind (("C-x g" . magit-status)))
 
-(projectile-global-mode)
-(setq projectile-enable-caching t)
-(setq projectile-require-project-root nil)
-(setq projectile-switch-project-action 'projectile-dired)
+(use-package git-timemachine
+  :ensure t
+  :bind (("s-g" . git-timemachine)))
+
+(use-package magit-todos
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DIFF HL
+;; https://github.com/dgutov/diff-hl
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode +1)
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;DiffView Mode
+;https://github.com/mgalgs/diffview-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package diffview
+  :ensure t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ANZU
+;; https://github.com/syohex/emacs-anzu
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package anzu
+  :ensure t
+  :config
+  (global-anzu-mode +1)
+  (set-face-attribute 'anzu-mode-line nil
+                      :foreground "yellow" :weight 'bold)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; windsize
+;; https://github.com/grammati/windsize
 ;;
+;; Then use C-S-<left>, C-S-<right>, C-S-<up>, and C-S-<down> to move window edges.
+;; Resizes by 8 columns or 4 rows by default. Change that by setting windsize-cols and/or windsize-rows.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package windsize
+  :ensure t
+  :config
+  (windsize-default-keybindings)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Imenu-list
+;; https://github.com/bmag/imenu-list
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (use-package imenu
+;;   :ensure t
+;;   )
+;; (use-package imenu-list
+;;   :ensure t
+;;   )
+
+;; (setq imenu-list-auto-resize t)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Treemacs
 ;; https://github.com/Alexander-Miller/treemacs
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package treemacs
   :ensure t
   :defer t
@@ -362,49 +382,57 @@
     (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :config
   (progn
-    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-          treemacs-deferred-git-apply-delay      0.5
-          treemacs-directory-name-transformer    #'identity
-          treemacs-display-in-side-window        t
-          treemacs-eldoc-display                 t
-          treemacs-file-event-delay              5000
-          treemacs-file-extension-regex          treemacs-last-period-regex-value
-          treemacs-file-follow-delay             0.2
-          treemacs-file-name-transformer         #'identity
-          treemacs-follow-after-init             t
-          treemacs-expand-after-init             t
-          treemacs-git-command-pipe              ""
-          treemacs-goto-tag-strategy             'refetch-index
-          treemacs-indentation                   2
-          treemacs-indentation-string            " "
-          treemacs-is-never-other-window         nil
-          treemacs-max-git-entries               5000
-          treemacs-missing-project-action        'ask
-          treemacs-move-forward-on-expand        nil
-          treemacs-no-png-images                 nil
-          treemacs-no-delete-other-windows       t
-          treemacs-project-follow-cleanup        nil
-          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-position                      'left
-          treemacs-read-string-input             'from-child-frame
-          treemacs-recenter-distance             0.1
-          treemacs-recenter-after-file-follow    nil
-          treemacs-recenter-after-tag-follow     nil
-          treemacs-recenter-after-project-jump   'always
-          treemacs-recenter-after-project-expand 'on-distance
-          treemacs-litter-directories            '("/node_modules" "/.venv" "/.cask")
-          treemacs-show-cursor                   nil
-          treemacs-show-hidden-files             t
-          treemacs-silent-filewatch              nil
-          treemacs-silent-refresh                nil
-          treemacs-sorting                       'alphabetic-asc
-          treemacs-space-between-root-nodes      t
-          treemacs-tag-follow-cleanup            t
-          treemacs-tag-follow-delay              1.5
-          treemacs-user-mode-line-format         nil
-          treemacs-user-header-line-format       nil
-          treemacs-width                         35
-          treemacs-workspace-switch-cleanup      nil)
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   'simple
+          treemacs-file-event-delay                2000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-find-workspace-method           'find-for-file-or-pick-first
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
+          treemacs-hide-dot-git-directory          t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-forward-on-expand          nil
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
 
     ;; The default width and height of the icons is 22 pixels. If you are
     ;; using a Hi-DPI display, uncomment this to double the icon size.
@@ -413,154 +441,589 @@
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
     (treemacs-fringe-indicator-mode 'always)
+    (when treemacs-python-executable
+      (treemacs-git-commit-diff-mode t))
+
     (pcase (cons (not (null (executable-find "git")))
                  (not (null treemacs-python-executable)))
       (`(t . t)
        (treemacs-git-mode 'deferred))
       (`(t . _)
-       (treemacs-git-mode 'simple))))
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
   :bind
   (:map global-map
         ("M-0"       . treemacs-select-window)
         ("C-x t 1"   . treemacs-delete-other-windows)
         ("C-x t t"   . treemacs)
+        ("C-x t d"   . treemacs-select-directory)
         ("C-x t B"   . treemacs-bookmark)
         ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag))
-  :hook (after-init . treemacs)
-  )
-
-;(use-package treemacs-evil
-;  :after (treemacs evil)
-;  :ensure t)
+        ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
   :ensure t)
 
 (use-package treemacs-icons-dired
-  :after (treemacs dired)
-  :ensure t
-  :config (treemacs-icons-dired-mode))
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
 
 (use-package treemacs-magit
   :after (treemacs magit)
   :ensure t)
 
-;; (use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
-;;   :after (treemacs persp-mode) ;;or perspective vs. persp-mode
-;;   :ensure t
-;;   :config (treemacs-set-scope-type 'Perspectives))
-
-;(require 'treemacs-all-the-icons)
-;(treemacs-load-theme "all-the-icons")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Disk Usage
+;; https://github.com/emacs-straight/disk-usage
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package disk-usage
+  :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Imenu-list
-;; https://github.com/bmag/imenu-list
-;;
+;; Which Key
+;; https://github.com/justbur/emacs-which-key
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(imenu-list-minor-mode)
-(setq imenu-list-auto-resize t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Org-Mode
-;; https://orgmode.org/index.html
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(require 'org)
-(add-to-list
- 'org-src-lang-modes '("plantuml" . plantuml))
+(use-package which-key
+  :ensure t)
+(which-key-setup-side-window-bottom)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Auctex
-;; https://github.com/latex-lsp/texlab
+;; Doom Modeline
+;; https://github.com/seagle0128/doom-modeline
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; AUCTeX configuration
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-
-(setq-default TeX-master nil)
-
-;; use pdflatex
-(setq TeX-PDF-mode t)
-
-;; use pdflatex
-(setq TeX-PDF-mode t)
-
-;; use evince for dvi and pdf viewer
-;; evince-dvi backend should be installed
-(setq TeX-view-program-selection
-      '((output-dvi "DVI Viewer")
-        (output-pdf "PDF Viewer")
-        (output-html "Google Chrome")))
-(setq TeX-view-program-list
-      '(("DVI Viewer" "evince %o")
-        ("PDF Viewer" "evince %o")
-        ("Google Chrome" "google-chrome %o")))
-
-(add-hook 'LaTeX-mode-hook 'turn-on-auto-fill)
-(add-hook 'LaTeX-mode-hook (lambda () (abbrev-mode +1)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Plantuml
-;; https://github.com/skuro/plantuml-mode
-;; C-c C-c  plantuml-preview: renders a PlantUML diagram from the current buffer in the best supported format
-;; C-u C-c C-c  plantuml-preview in other window
-;; C-u C-u C-c C-c plantuml-preview in other frame
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(setq plantuml-executable-path "/usr/bin/plantuml")
-(setq plantuml-default-exec-mode 'executable)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Jupyter
-;; https://github.com/nnicandro/emacs-jupyter
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (add-to-list 'load-path "/usr/bin/jupyter")
-;; (require 'jupyter)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Markdown Mode
-;; https://jblevins.org/projects/markdown-mode/
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package markdown-mode
+(use-package doom-modeline
   :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :init (doom-modeline-mode 1))
+(setq doom-modeline-project-detection 'auto)
+;; Whether display icons in the mode-line.
+;; While using the server mode in GUI, should set the value explicitly.
+(setq doom-modeline-icon (display-graphic-p))
+
+;; Whether display the icon for `major-mode'. It respects `doom-modeline-icon'.
+(setq doom-modeline-major-mode-icon t)
+
+;; Whether display the colorful icon for `major-mode'.
+;; It respects `all-the-icons-color-icons'.
+(setq doom-modeline-major-mode-color-icon t)
+
+;; Whether display the icon for the buffer state. It respects `doom-modeline-icon'.
+(setq doom-modeline-buffer-state-icon t)
+
+;; Whether display the modification icon for the buffer.
+;; It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'.
+(setq doom-modeline-buffer-modification-icon t)
+
+;; Whether display the buffer name.
+(setq doom-modeline-buffer-name t)
+
+;; Whether display the minor modes in the mode-line.
+(setq doom-modeline-minor-modes nil)
+
+;; If non-nil, a word count will be added to the selection-info modeline segment.
+(setq doom-modeline-enable-word-count nil)
+
+;; Major modes in which to display word count continuously.
+;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
+;; If it brings the sluggish issue, disable `doom-modeline-enable-word-count' or
+;; remove the modes from `doom-modeline-continuous-word-count-modes'.
+(setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
+
+;; Whether display the buffer encoding.
+(setq doom-modeline-buffer-encoding t)
+
+;; Whether display the indentation information.
+(setq doom-modeline-indent-info nil)
+
+;; If non-nil, only display one number for checker information if applicable.
+(setq doom-modeline-checker-simple-format t)
+
+;; The maximum number displayed for notifications.
+(setq doom-modeline-number-limit 99)
+
+;; The maximum displayed length of the branch name of version control.
+(setq doom-modeline-vcs-max-length 12)
+
+;; Whether display the workspace name. Non-nil to display in the mode-line.
+(setq doom-modeline-workspace-name t)
+
+;; Whether display the perspective name. Non-nil to display in the mode-line.
+(setq doom-modeline-persp-name t)
+
+;; If non nil the default perspective name is displayed in the mode-line.
+(setq doom-modeline-display-default-persp-name nil)
+
+;; If non nil the perspective name is displayed alongside a folder icon.
+(setq doom-modeline-persp-icon t)
+
+;; Whether display the `lsp' state. Non-nil to display in the mode-line.
+(setq doom-modeline-lsp t)
+
+;; Whether display the GitHub notifications. It requires `ghub' package.
+(setq doom-modeline-github nil)
+
+;; The interval of checking GitHub.
+(setq doom-modeline-github-interval (* 30 60))
+
+;; Whether display the modal state icon.
+;; Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc.
+(setq doom-modeline-modal-icon t)
+;; Whether display the buffer name.
+(setq doom-modeline-buffer-name t)
+
+;; Whether display the minor modes in the mode-line.
+(setq doom-modeline-minor-modes nil)
+
+;; If non-nil, a word count will be added to the selection-info modeline segment.
+(setq doom-modeline-enable-word-count nil)
+
+;; Major modes in which to display word count continuously.
+;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
+;; If it brings the sluggish issue, disable `doom-modeline-enable-word-count' or
+;; remove the modes from `doom-modeline-continuous-word-count-modes'.
+(setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
+
+;; Whether display the buffer encoding.
+(setq doom-modeline-buffer-encoding t)
+
+;; Whether display the indentation information.
+(setq doom-modeline-indent-info nil)
+
+;; If non-nil, only display one number for checker information if applicable.
+(setq doom-modeline-checker-simple-format t)
+
+;; The maximum number displayed for notifications.
+(setq doom-modeline-number-limit 99)
+
+;; The maximum displayed length of the branch name of version control.
+(setq doom-modeline-vcs-max-length 12)
+
+;; Whether display the workspace name. Non-nil to display in the mode-line.
+(setq doom-modeline-workspace-name t)
+
+;; Whether display the perspective name. Non-nil to display in the mode-line.
+(setq doom-modeline-persp-name t)
+
+;; If non nil the default perspective name is displayed in the mode-line.
+(setq doom-modeline-display-default-persp-name nil)
+
+;; If non nil the perspective name is displayed alongside a folder icon.
+(setq doom-modeline-persp-icon t)
+
+;; Whether display the `lsp' state. Non-nil to display in the mode-line.
+(setq doom-modeline-lsp t)
+
+;; Whether display the GitHub notifications. It requires `ghub' package.
+(setq doom-modeline-github nil)
+
+;; The interval of checking GitHub.
+(setq doom-modeline-github-interval (* 30 60))
+
+;; Whether display the modal state icon.
+;; Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc.
+(setq doom-modeline-modal-icon t)
+
+;; Whether display the environment version.
+(setq doom-modeline-env-version t)
+;; Or for individual languages
+(setq doom-modeline-env-enable-python t)
+
+(setq doom-modeline-env-python-executable "python3")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
+;; LSP Mode
+;; https://emacs-lsp.github.io/lsp-mode/page/installation/
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package lsp-mode
+  :ensure t
+  :hook (prog-mode . lsp-deferred)
+  :init
+  ;; Disable features that have great potential to be slow.
+  (setq lsp-enable-folding nil
+        lsp-enable-text-document-color nil)
+  ;; Reduce unexpected modifications to code
+  (setq lsp-enable-on-type-formatting nil)
+  ;; Make breadcrumbs opt-in; they're redundant with the modeline and imenu
+  (setq lsp-headerline-breadcrumb-enable nil)
+  ;; :config
+  ;; (when (featurep! :completion company)
+  ;;   (add-hook! 'lsp-completion-mode-hook
+  ;;              (defun +lsp-init-company-backends-h ()
+  ;;                (when lsp-completion-mode
+  ;;                  (set (make-local-variable 'company-backends)
+  ;;                       (cons +lsp-company-backends
+  ;;                             (remove +lsp-company-backends
+  ;;                                     (remq 'company-capf company-backends))))))))
+  :custom
+  (lsp-prefer-capf t)
+  (lsp-auto-guess-root t)
+  (lsp-keep-workspace-alive nil))
+
+(use-package lsp-ui
+  :ensure t
+  )
+(setq lsp-ui-sideline-enable t)
+(setq lsp-log-io nil)
+(setq flycheck-checker-error-threshold 10000)
+(setq lsp-ui-flycheck-enable t)
+(setq-local flycheck-checker 'python-flake8)
+(setq lsp-ui-flycheck-list-position 'right)
+(setq lsp-ui-flycheck-live-reporting t)
+(setq lsp-ui-peek-enable t)
+(setq lsp-ui-peek-list-width 60)
+(setq lsp-ui-peek-peek-height 25)
+(setq lsp-ui-imenu-enable t)
+(setq lsp-ui-doc-enable t)
+
+
+                                        ;(add-hook 'makefile-mode-hook #'lsp)
+                                        ;(add-hook 'asm-mode-hook #'lsp)
+                                        ;(add-hook 'lisp-mode-hook #'lsp)
+(add-hook 'vhdl-mode-hook #'lsp)
+
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+(define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+(define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+(add-hook 'emacs-lisp-mode-hook #'lsp)
+(use-package lsp-treemacs
+  :ensure t
+  :commands lsp-treemacs-errors-list)
+
+                                        ; https://github.com/emacs-lsp/lsp-treemacs
+(lsp-treemacs-sync-mode 1)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Verilog LSP Setup
+;; https://github.com/suoto/hdl_checker
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+'(lsp-clients-svlangserver-formatCommand
+  "~/src/software/Verible/verible-v0.0-2056-g3a70454e/bin/verible-verilog-format")
+'(lsp-clients-svlangserver-launchConfiguration "/usr/bin/verilator -sv --lint-only -Wall")
+(add-hook 'verilog-mode-hook #'lsp-deferred)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Python Programming
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package elpy
+  :ensure t
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable))
+
+(require 'elpy)
+;; https://realpython.com/emacs-the-best-python-editor/
+;; use flycheck not flymake with elpy
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+(use-package py-autopep8
+  :ensure t
+  )
+(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+(setq py-autopep8-options '("--max-line-length=120"))
+
+;; (use-package python-black
+;;   :demand t
+;;   :after python
+;;   :hook (python-mode . python-black-on-save-mode-enable-dwim))
+
+;(require 'pippel)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; C Programming
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs helm-lsp
+                                           projectile hydra flycheck company avy which-key helm-xref dap-mode))
+
+(when (cl-find-if-not #'package-installed-p package-selected-packages)
+  (package-refresh-contents)
+  (mapc #'package-install package-selected-packages))
+
+;; sample `helm' configuration use https://github.com/emacs-helm/helm/ for details
+(helm-mode)
+(use-package helm-xref
+  :ensure t)
+(define-key global-map [remap find-file] #'helm-find-files)
+(define-key global-map [remap execute-extended-command] #'helm-M-x)
+(define-key global-map [remap switch-to-buffer] #'helm-mini)
+
+(which-key-mode)
+(add-hook 'c-mode-hook 'lsp)
+(add-hook 'c++-mode-hook 'lsp)
+
+(setq gc-cons-threshold (* 100 1024 1024)
+      read-process-output-max (* 1024 1024)
+      treemacs-space-between-root-nodes nil
+      company-idle-delay 0.0
+      company-minimum-prefix-length 1
+      lsp-idle-delay 0.1)  ;; clangd is fast
+
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+  (require 'dap-cpptools)
+  (yas-global-mode))
+
+;; (use-package ccls
+;;   :hook ((c-mode c++-mode objc-mode cuda-mode) .
+;;          (lambda () (require 'ccls) (lsp))))
+;; (setq ccls-executable "/usr/bin/ccls")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Company
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package company
+  :ensure t
+  :hook (prog-mode . company-mode)
+  :custom
+  (company-backends '(company-capf)))
+
+
+;; With use-package:
+(use-package company-box
+  :ensure t
+  :hook (company-mode . company-box-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org-Mode
+;;https://orgmode.org/
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Turn on indentation and auto-fill mode for Org files
+(defun pet/org-mode-setup ()
+  (org-indent-mode)
+;  (variable-pitch-mode 1)
+;  (auto-fill-mode 0)
+  (diminish org-indent-mode))
+
+;; M-x insert-char and select "down arrow"
+(use-package org
+  :config (setq org-ellipsis "  ↓"
+                org-hide-emphasis-markers t) ; font-lock will hide characters controlling bold, italic, etc...
+  :hook (org-mode . pet/org-mode-setup)
+  :ensure t)
+
+(use-package org-bulletsn
+  :after org
+  :hook(org-mode . org-bullets-mode))
+
+;; https://github.com/daviwil/dotfiles/blob/master/Emacs.org#org-mode
+;; Adjust font and size of headings in ORG mode
+(dolist (face '((org-level-1 . 1.3)
+                    (org-level-2 . 1.2)
+                    (org-level-3 . 1.1)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+  (set-face-attribute (car face) nil :font "Cantarell" :weight 'medium :height (cdr face)))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory "/home/ptracton/Synology/ptracton/org-roam")
+  (org-roam-complete-everywhere t)
+  :bind(("C-c n l" . org-roam-buffer-toggle)
+        ("C-c n f" . org-roam-node-find)
+        ("C-c n i" . org-roam-node-insert)
+        ("C-c n g" . org-roam-graph)
+        :map org-mode-map
+        ("C-M-i" . completion-at-point-functions)
+        )
+  :config
+  (org-roam-setup)
+  )
+
+;; https://github.com/bastibe/org-journal
+(use-package org-journal
+  :ensure t
+  :defer t
+  :init
+  ;; Change default prefix key; needs to be set before loading org-journal
+  (setq org-journal-prefix-key "C-c j ")
+  :config
+  (setq org-journal-dir "/home/ptracton/Synology/ptracton/org/journal/"
+        org-journal-date-format "%A, %d %B %Y"))
+
+;(add-to-list 'org-agenda-files "/home/ptracton/Synology/ptracton/org/agenda.org")
+(setq org-agenda-files (list "/home/ptracton/Synology/ptracton/org/agenda.org"))
+(setq org-directory "/home/ptracton/Synology/ptracton/org/")
+
+;; https://github.com/org-roam/org-roam-ui
+(use-package websocket
+    :after org-roam)
+
+(use-package org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
+
+;; https://github.com/minad/org-modern
+;; (use-package org-modern
+;;   :ensure t)
+;; ;; Option 2: Globally
+;; (global-org-modern-mode)
+
+;; https://github.com/alphapapa/org-super-agenda
+;; (let ((org-super-agenda-groups
+;;        '(;; Each group has an implicit boolean OR operator between its selectors.
+;;          (:name "Today"  ; Optionally specify section name
+;;                 :time-grid t  ; Items that appear on the time grid
+;;                 :todo "TODAY")  ; Items that have this TODO keyword
+;;          (:name "Important"
+;;                 ;; Single arguments given alone
+;;                 :tag "bills"
+;;                 :priority "A")
+;;          ;; Set order of multiple groups at once
+;;          (:order-multi (2 (:name "Shopping in town"
+;;                                  ;; Boolean AND group matches items that match all subgroups
+;;                                  :and (:tag "shopping" :tag "@town"))
+;;                           (:name "Food-related"
+;;                                  ;; Multiple args given in list with implicit OR
+;;                                  :tag ("food" "dinner"))
+;;                           (:name "Personal"
+;;                                  :habit t
+;;                                  :tag "personal")
+;;                           (:name "Space-related (non-moon-or-planet-related)"
+;;                                  ;; Regexps match case-insensitively on the entire entry
+;;                                  :and (:regexp ("space" "NASA")
+;;                                                ;; Boolean NOT also has implicit OR between selectors
+;;                                                :not (:regexp "moon" :tag "planet")))))
+;;          ;; Groups supply their own section names when none are given
+;;          (:todo "WAITING" :order 8)  ; Set order of this section
+;;          (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
+;;                 ;; Show this group at the end of the agenda (since it has the
+;;                 ;; highest number). If you specified this group last, items
+;;                 ;; with these todo keywords that e.g. have priority A would be
+;;                 ;; displayed in that group instead, because items are grouped
+;;                 ;; out in the order the groups are listed.
+;;                 :order 9)
+;;          (:priority<= "B"
+;;                       ;; Show this section after "Today" and "Important", because
+;;                       ;; their order is unspecified, defaulting to 0. Sections
+;;                       ;; are displayed lowest-number-first.
+;;                       :order 1)
+;;          ;; After the last group, the agenda will display items that didn't
+;;          ;; match any of these groups, with the default order position of 99
+;;          )))
+;;   (org-agenda nil "a"))
+
+;; (define-key global-map (kbd "C-c c") 'org-capture)
+;; (define-key global-map (kbd "C-c r") 'org-capture-refile)
+
+;; https://github.com/sk8ingdom/.emacs.d/blob/master/init.el
+;(load "~/.emacs.d/org-todo-states")
+;(load "~/.emacs.d/org-capture-templates")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Latex
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package lsp-latex
+  :ensure t)
+
+ (with-eval-after-load "tex-mode"
+   (add-hook 'TeX-mode-hook 'lsp)
+   (add-hook 'LaTeX-mode-hook 'lsp))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Company math mode
+;https://github.com/vspinu/company-math
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package company-math
+  :ensure t)
+
+;(add-to-list 'company-backends 'company-math-symbols-unicode)
+
+(defun my-latex-mode-setup ()
+  (setq-local company-backends
+              (append '((company-math-symbols-latex company-latex-commands))
+                      company-backends)))
+
+(add-hook 'TeX-mode-hook 'my-latex-mode-setup)
+(add-hook 'LaTeX-mode-hook 'my-latex-mode-setup)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Auctex
+;https://www.gnu.org/software/auctex/download-for-unix.html
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (use-package tex
+;;   :ensure auctex)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Plant UML Mode
+;; https://plantuml.com/emacs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package plantuml-mode
+  :ensure t)
+(setq org-plantuml-jar-path (expand-file-name "/usr/share/plantuml/plantuml.jar"))
+;;(add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+;;(org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; HL TODO Mode
+;; https://github.com/tarsius/hl-todo
+;; https://www.reddit.com/r/emacs/comments/f8tox6/todo_highlighting/
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package hl-todo
+  :hook ((prog-mode . hl-todo-mode)
+         (python-mode . hl-todo-mode)
+         (c-mode . hl-todo-mode)
+         (verilog-mode . hl-todo-mode)
+         (emacs-lisp-mode . hl-todo-mode)
+         )
+  :config
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("TODO"       warning bold)
+          ("FIXME"      error bold)
+          ("HACK"       font-lock-constant-face bold)
+          ("REVIEW"     font-lock-keyword-face bold)
+          ("NOTE"       success bold)
+          ("DEPRECATED" font-lock-doc-face bold))))
+
+
+(use-package rainbow-delimiters
+  :ensure t
+  )
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Function to remove ^M from end of line
+;; http://stackoverflow.com/questions/730751/hiding-m-in-emacs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun remove-dos-eol ()
+  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+  (interactive)
+  (setq buffer-display-table (make-display-table))
+  (aset buffer-display-table ?\^M []))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Keys
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Unbind unneeded keys
-(global-set-key (kbd "C-z") nil)
-(global-set-key (kbd "M-z") nil)
-(global-set-key (kbd "C-x C-z") nil)
-(global-set-key (kbd "M-/") nil)
-;; Truncate lines
-(global-set-key (kbd "C-x C-l") #'toggle-truncate-lines)
+(global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
+
 ;; Adjust font size like web browsers
 (global-set-key (kbd "C-=") #'text-scale-increase)
 (global-set-key (kbd "C-+") #'text-scale-increase)
 (global-set-key (kbd "C--") #'text-scale-decrease)
-;; Move up/down paragraph
-(global-set-key (kbd "M-n") #'forward-paragraph)
-(global-set-key (kbd "M-p") #'backward-paragraph)
 
-(global-set-key (kbd "<f1>") 'shell)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(global-set-key (kbd "C-c o") 'helm-occur)
+(global-set-key (kbd "C-c C-g") 'projectile-grep)
+
+(global-set-key (kbd "<f1>") 'eshell)
 (global-set-key (kbd "<f2>") 'magit-status)
 (global-set-key (kbd "S-<f2>") 'vc-dir)
 (global-set-key (kbd "<f3>") 'delete-trailing-whitespace)
@@ -569,61 +1032,53 @@
 (global-set-key (kbd "<f6>") 'highlight-changes-visible-mode)
 (global-set-key (kbd "S-<f6>") 'highlight-changes-remove-highlight)
 (global-set-key (kbd "<f7>") 'whitespace-mode)
+;(global-set-key (kbd "<f8>") 'python-black-buffer)
 (global-set-key (kbd "<f8>") 'py-autopep8-buffer)
 (global-set-key (kbd "<f9>") 'pylint)
 (global-set-key (kbd "<f10>") 'flycheck-list-errors)
-
-(global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-c o") 'helm-occur)
-(global-set-key (kbd "C-c g") 'helm-google-suggest)
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "<f11>") 'org-agenda)
+;; (global-set-key (kbd "S-<f11>") 'imenu-list-auto-update)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; File Associations
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (progn
   (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
   (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
   (add-to-list 'auto-mode-alist '("\\.stim\\'" . verilog-mode))
-  (add-to-list 'auto-mode-alist '("\\.vh\\'" . verilog-mode))
-  (add-to-list 'auto-mode-alist '("\\.f\\'" . text-mode))
+  (add-to-list 'auto-mode-alist  '("\\.vh\\'" . verilog-mode))
   (add-to-list 'auto-mode-alist '("\\.f\\'" . text-mode))
   (add-to-list 'auto-mode-alist '("\\.uml\\'" . plantuml-mode))
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
   )
 
+;https://www.reddit.com/r/emacs/comments/zks4s3/open_things_automatically_on_startup/
+;; (add-hook 'emacs-startup-hook
+;;    (lambda ()
+;;      (kill-buffer "*scratch*")
+;;             (kill-buffer "*Messages*")
+;;             (kill-buffer "*Warnings*")
+;;      (split-window-below)
+;;      (other-window 1)  ; Go to the new window
+;;      (ansi-term "/bin/bash")
+;;      (other-window 0)  ; Back to main window
+;; ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Set Theme and Colors
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'dracula-theme)
-(load-theme 'dracula)
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
+
+  (doom-themes-org-config))
 
 (set-background-color "black")
 
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("824d07981667fd7d63488756b6d6a4036bae972d26337babf7b56df6e42f2bcd" "81c3de64d684e23455236abde277cda4b66509ef2c28f66e059aa925b8b12534" default)))
- '(lsp-verilog-server (quote hdl-checker))
- '(package-selected-packages
-   (quote
-    (jupyter auctex company-lsp company-box plantuml-mode smex imenu-list windsize lsp-jedi treemacs-projectile lsp-clients treemacs-icons-dired treemacs-magit lsp-treemacs lsp-ui helm-lsp helm-xref helm-gtags helm-projectile helm-flycheck helm use-package rainbow-delimiters pylint py-autopep8 magit flycheck-color-mode-line elpy dracula-theme diff-hl anzu))))
+(provide 'init)
+;;; init.el ends here
