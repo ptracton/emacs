@@ -861,6 +861,7 @@
       '("/home/ptracton/Synology/ptracton/org/agenda.org"
        "/home/ptracton/Synology/ptracton/org/birthdays.org"
        "/home/ptracton/Synology/ptracton/org/Medtronic.org"
+       "/home/ptracton/Synology/ptracton/org/habits.org"
        ))
 (setq org-directory "/home/ptracton/Synology/ptracton/org/")
 
@@ -872,6 +873,27 @@
 (setq org-todo-keywords
   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
     (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  (setq org-refile-targets
+    '(("Archive.org" :maxlevel . 1)
+      ("Tasks.org" :maxlevel . 1)))
+
+  ;; Save Org buffers after refiling!
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+  (setq org-tag-alist
+    '((:startgroup)
+       ; Put mutually exclusive tags here
+       (:endgroup)
+       ("@errand" . ?E)
+       ("@home" . ?H)
+       ("@work" . ?W)
+       ("agenda" . ?a)
+       ("planning" . ?p)
+       ("publish" . ?P)
+       ("batch" . ?b)
+       ("note" . ?n)
+       ("idea" . ?i)))
 
 ;; Configure custom agenda views
 (setq org-agenda-custom-commands
@@ -921,6 +943,37 @@
       (todo "CANC"
             ((org-agenda-overriding-header "Cancelled Projects")
              (org-agenda-files org-agenda-files)))))))
+
+ 
+  (setq org-capture-templates
+    `(("t" "Tasks / Projects")
+      ("tt" "Task" entry (file+olp "/home/ptracton/Synology/ptracton/org/agenda.org" "Inbox")
+           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("j" "Journal Entries")
+      ("jj" "Journal" entry
+           (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1)
+      ("jm" "Meeting" entry
+           (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
+           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+           :clock-in :clock-resume
+           :empty-lines 1)
+
+      ("w" "Workflows")
+      ("we" "Checking Email" entry (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+      ("m" "Metrics Capture")
+      ("mw" "Weight" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Weight")
+       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+
+  (define-key global-map (kbd "C-c j")
+    (lambda () (interactive) (org-capture nil "jj")))
+
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package websocket
@@ -1106,8 +1159,9 @@
 (global-set-key (kbd "<f7>") 'whitespace-mode)
 ;(global-set-key (kbd "<f8>") 'python-black-buffer)
 (global-set-key (kbd "<f8>") 'py-autopep8-buffer)
-(global-set-key (kbd "<f9>") 'pylint)
-(global-set-key (kbd "<f10>") 'flycheck-list-errors)
+;(global-set-key (kbd "<f9>") 'pylint)
+(global-set-key (kbd "<f9>") 'flycheck-list-errors)
+(global-set-key (kbd "<f10>") 'org-capture)
 (global-set-key (kbd "<f11>") 'org-agenda)
 ;; (global-set-key (kbd "S-<f11>") 'imenu-list-auto-update)
 
