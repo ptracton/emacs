@@ -697,6 +697,8 @@
                                         ; https://github.com/emacs-lsp/lsp-treemacs
 (lsp-treemacs-sync-mode 1)
 
+(setq lsp-warn-no-matched-clients nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Verilog LSP Setup
 ;; https://github.com/suoto/hdl_checker
@@ -734,6 +736,8 @@
 ;;   :hook (python-mode . python-black-on-save-mode-enable-dwim))
 
 ;(require 'pippel)
+;; https://www.flycheck.org/en/latest/user/syntax-checkers.html
+(flycheck-add-next-checker 'python-flake8 'python-pylint)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; C Programming
