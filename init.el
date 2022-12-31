@@ -249,9 +249,11 @@
 ;; https://github.com/bbatsov/projectile
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package projectile
-  :ensure t
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom (projectile-completion-system 'helm)
   :init
-  (setq projectile-project-search-path '("~/src/software/STM32L423KC" "~/src/hardware/wide_memory" "~/src/hardware/project_stub" "~/src/stm32_cmsis_nn/firmware/L432KC" "~/STM32Cube/Repository/" "~/src/DTREE"))
+  (setq projectile-project-search-path '("~/src/software/STM32L423KC" "~/src/hardware/wide_memory" "~/src/hardware/project_stub" "~/src/stm32_cmsis_nn/firmware/L432KC" "~/STM32Cube/Repository/" "~/src/DTREE" "~/Synology/ptracton/MDT_ONNX"))
   :config
   ;; I typically use this keymap prefix on macOS
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
@@ -259,6 +261,7 @@
   (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
   (global-set-key (kbd "C-c p") 'projectile-command-map)
   (projectile-mode +1))
+(setq projectile-switch-project-action #'projectile-dired)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helm
@@ -280,11 +283,11 @@
 
 ;; https://github.com/bbatsov/helm-projectile
 ;; https://tuhdo.github.io/helm-projectile.html
-;; (use-package helm-projectile
-;;   :ensure t
-;;   :config
-;;   (helm-projectile-on)
-;;   )
+(use-package helm-projectile
+  :ensure t
+  :config
+  (helm-projectile-on)
+  )
 
 ;; (use-package helm-flycheck
 ;;   :ensure t) ;; Not necessary if using ELPA package
@@ -311,8 +314,8 @@
   :ensure t
   :bind (("s-g" . git-timemachine)))
 
-(use-package magit-todos
-  :ensure t)
+;; (use-package magit-todos
+;;   :ensure t)
 
 (use-package forge
   :after magit)
@@ -724,18 +727,15 @@
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
+;; https://codeberg.org/ideasman42/emacs-py-autopep8
 (use-package py-autopep8
-  :ensure t
-  )
-(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
-(setq py-autopep8-options '("--max-line-length=120"))
+;  (py-autopep8-options '("--max-line-length=120" ))
+  :hook ((python-mode) . py-autopep8-mode))
 
-;; (use-package python-black
-;;   :demand t
-;;   :after python
-;;   :hook (python-mode . python-black-on-save-mode-enable-dwim))
 
-;(require 'pippel)
+(add-hook 'elpy-mode-hook 'py-autopep8-mode)
+
+
 ;; https://www.flycheck.org/en/latest/user/syntax-checkers.html
 (flycheck-add-next-checker 'python-flake8 'python-pylint)
 
@@ -818,7 +818,7 @@
 ;; https://github.com/daviwil/dotfiles/blob/master/Emacs.org#org-mode
 ;; Adjust font and size of headings in ORG mode
 ;; https://emacs.stackexchange.com/questions/62981/error-invalid-face-org-level-1
-;; (with-eval-after-load 'org-faces 
+;; (with-eval-after-load 'org-faces
 ;;   (face '((org-level-1 . 1.3)
 ;;           (org-level-2 . 1.2)
 ;;           (org-level-3 . 1.1)
@@ -857,13 +857,18 @@
         org-journal-date-format "%A, %d %B %Y"))
 
 ;(add-to-list 'org-agenda-files "/home/ptracton/Synology/ptracton/org/agenda.org")
-(setq org-agenda-files 
+(setq org-agenda-files
       '("/home/ptracton/Synology/ptracton/org/agenda.org"
        "/home/ptracton/Synology/ptracton/org/birthdays.org"
        "/home/ptracton/Synology/ptracton/org/Medtronic.org"
        "/home/ptracton/Synology/ptracton/org/habits.org"
        ))
 (setq org-directory "/home/ptracton/Synology/ptracton/org/")
+
+(require 'org-habit)
+(add-to-list 'org-modules 'org-habit)
+(setq org-habit-graph-column 60)
+
 
 ;; https://github.com/daviwil/emacs-from-scratch/blob/master/show-notes/Emacs-06.org
 (setq org-agenda-start-with-log-mode t) ;Present a log of what you worked on today
@@ -944,7 +949,7 @@
             ((org-agenda-overriding-header "Cancelled Projects")
              (org-agenda-files org-agenda-files)))))))
 
- 
+
   (setq org-capture-templates
     `(("t" "Tasks / Projects")
       ("tt" "Task" entry (file+olp "/home/ptracton/Synology/ptracton/org/agenda.org" "Inbox")
@@ -974,6 +979,29 @@
   (define-key global-map (kbd "C-c j")
     (lambda () (interactive) (org-capture nil "jj")))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ORG BABEL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; https://orgmode.org/worg/org-contrib/babel/languages/index.html
+(org-babel-do-load-languages
+  'org-babel-load-languages
+  '((emacs-lisp . t)
+    (C . t)
+    (python . t)))
+
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("cc" . "src c"))
+(add-to-list 'org-structure-template-alist '("vl" . "src verilog"))
+
+;;(org-confirm-babel-evaluate nil) ;;supposed to stop asking to execute org-babel code blocks
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ORG ROAM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; https://github.com/org-roam/org-roam-ui
 (use-package websocket
@@ -1114,11 +1142,46 @@
           ("NOTE"       success bold)
           ("DEPRECATED" font-lock-doc-face bold))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Rainbow Delimiters
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package rainbow-delimiters
   :ensure t
   )
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helpful
+;; https://github.com/Wilfred/helpful
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package helpful
+  :ensure t)
+;; Note that the built-in `describe-function' includes both functions
+;; and macros. `helpful-function' is functions only, so we provide
+;; `helpful-callable' as a drop-in replacement.
+(global-set-key (kbd "C-h f") #'helpful-callable)
+
+(global-set-key (kbd "C-h v") #'helpful-variable)
+(global-set-key (kbd "C-h k") #'helpful-key)
+
+;; Lookup the current symbol at point. C-c C-d is a common keybinding
+;; for this in lisp modes.
+(global-set-key (kbd "C-c C-d") #'helpful-at-point)
+
+;; Look up *F*unctions (excludes macros).
+;;
+;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
+;; already links to the manual, if a function is referenced there.
+(global-set-key (kbd "C-h F") #'helpful-function)
+
+;; Look up *C*ommands.
+;;
+;; By default, C-h C is bound to describe `describe-coding-system'. I
+;; don't find this very useful, but it's frequently useful to only
+;; look at interactive functions.
+(global-set-key (kbd "C-h C") #'helpful-command)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function to remove ^M from end of line
