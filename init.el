@@ -842,7 +842,7 @@
         ("C-M-i" . completion-at-point-functions)
         )
   :config
-  (org-roam-setup)
+  (org-roam-db-autosync-enable)
   )
 
 ;; https://github.com/bastibe/org-journal
@@ -973,8 +973,14 @@
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
 
       ("m" "Metrics Capture")
+
+      ("mf" "Food" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Food")
+       "| %U | %^{Food} | %^{Notes} |" :kill-buffer t)
+
       ("mw" "Weight" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Weight")
        "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+
+
 
   (define-key global-map (kbd "C-c j")
     (lambda () (interactive) (org-capture nil "jj")))
@@ -1107,8 +1113,31 @@
 ;Auctex
 ;https://www.gnu.org/software/auctex/download-for-unix.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package tex
-;;   :ensure auctex)
+(use-package tex
+  :ensure auctex)
+
+;; https://www.gnu.org/software/auctex/manual/auctex/Quick-Start.html#Quick-Start
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+
+(latex-preview-pane-enable)
+
+;;https://jakebox.github.io/youtube/org_latex_video.html
+(with-eval-after-load 'ox-latex
+(add-to-list 'org-latex-classes
+             '("org-plain-latex"
+               "\\documentclass{article}
+           [NO-DEFAULT-PACKAGES]
+           [PACKAGES]
+           [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+
+(setq org-latex-listings 't)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Plant UML Mode
