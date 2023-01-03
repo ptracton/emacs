@@ -248,20 +248,20 @@
 ;; Projectile
 ;; https://github.com/bbatsov/projectile
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :custom (projectile-completion-system 'helm)
-  :init
-  (setq projectile-project-search-path '("~/src/software/STM32L423KC" "~/src/hardware/wide_memory" "~/src/hardware/project_stub" "~/src/stm32_cmsis_nn/firmware/L432KC" "~/STM32Cube/Repository/" "~/src/DTREE" "~/Synology/ptracton/MDT_ONNX"))
-  :config
-  ;; I typically use this keymap prefix on macOS
-  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-  ;; On Linux, however, I usually go with another one
-  (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
-  (global-set-key (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1))
-(setq projectile-switch-project-action #'projectile-dired)
+;; (use-package projectile
+;;   :diminish projectile-mode
+;;   :config (projectile-mode)
+;;   :custom (projectile-completion-system 'helm)
+;;   :init
+;;   (setq projectile-project-search-path '("~/src/software/STM32L423KC" "~/src/hardware/wide_memory" "~/src/hardware/project_stub" "~/src/stm32_cmsis_nn/firmware/L432KC" "~/STM32Cube/Repository/" "~/src/DTREE" "~/Synology/ptracton/MDT_ONNX"))
+;;   :config
+;;   ;; I typically use this keymap prefix on macOS
+;;   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+;;   ;; On Linux, however, I usually go with another one
+;;   (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
+;;   (global-set-key (kbd "C-c p") 'projectile-command-map)
+;;   (projectile-mode +1))
+;; (setq projectile-switch-project-action #'projectile-dired)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helm
@@ -283,21 +283,22 @@
 
 ;; https://github.com/bbatsov/helm-projectile
 ;; https://tuhdo.github.io/helm-projectile.html
-(use-package helm-projectile
-  :ensure t
-  :config
-  (helm-projectile-on)
-  )
+;; (use-package helm-projectile
+;;   :ensure t
+;;   :config
+;;   (helm-projectile-on)
+;;   )
 
 ;; (use-package helm-flycheck
 ;;   :ensure t) ;; Not necessary if using ELPA package
 
-(eval-after-load 'flycheck
-  '(define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
+;; (eval-after-load 'flycheck
+;;   '(define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
 
-(setq projectile-completion-system 'helm)
-(setq projectile-switch-project-action 'helm-projectile-find-file)
-(setq projectile-switch-project-action 'helm-projectile)
+;; (setq projectile-completion-system 'helm)
+;; (setq projectile-switch-project-action 'helm-projectile-find-file)
+;; (setq projectile-switch-project-action 'helm-projectile)
+
 (use-package helm-icons
   :ensure t)
 (helm-icons-enable)
@@ -314,8 +315,8 @@
   :ensure t
   :bind (("s-g" . git-timemachine)))
 
-;; (use-package magit-todos
-;;   :ensure t)
+(use-package magit-todos
+  :ensure t)
 
 (use-package forge
   :after magit)
@@ -653,15 +654,6 @@
   (setq lsp-enable-on-type-formatting nil)
   ;; Make breadcrumbs opt-in; they're redundant with the modeline and imenu
   (setq lsp-headerline-breadcrumb-enable nil)
-  ;; :config
-  ;; (when (featurep! :completion company)
-  ;;   (add-hook! 'lsp-completion-mode-hook
-  ;;              (defun +lsp-init-company-backends-h ()
-  ;;                (when lsp-completion-mode
-  ;;                  (set (make-local-variable 'company-backends)
-  ;;                       (cons +lsp-company-backends
-  ;;                             (remove +lsp-company-backends
-  ;;                                     (remq 'company-capf company-backends))))))))
   :custom
   (lsp-prefer-capf t)
   (lsp-auto-guess-root t)
@@ -674,7 +666,7 @@
 (setq lsp-log-io nil)
 (setq flycheck-checker-error-threshold 10000)
 (setq lsp-ui-flycheck-enable t)
-(setq-local flycheck-checker 'python-flake8)
+;(setq-local flycheck-checker 'python-flake8)
 (setq lsp-ui-flycheck-list-position 'right)
 (setq lsp-ui-flycheck-live-reporting t)
 (setq lsp-ui-peek-enable t)
@@ -682,12 +674,6 @@
 (setq lsp-ui-peek-peek-height 25)
 (setq lsp-ui-imenu-enable t)
 (setq lsp-ui-doc-enable t)
-
-
-                                        ;(add-hook 'makefile-mode-hook #'lsp)
-                                        ;(add-hook 'asm-mode-hook #'lsp)
-                                        ;(add-hook 'lisp-mode-hook #'lsp)
-(add-hook 'vhdl-mode-hook #'lsp)
 
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
@@ -702,6 +688,14 @@
 
 (setq lsp-warn-no-matched-clients nil)
 
+;;; LSP Support
+;; (unless (package-installed-p 'eglot)
+;;   (package-install 'eglot))
+
+;; ;; Enable LSP support by default in programming buffers
+;; (add-hook 'prog-mode-hook #'eglot-ensure)
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Verilog LSP Setup
 ;; https://github.com/suoto/hdl_checker
@@ -714,30 +708,48 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python Programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; (use-package python-mode
+;;   :ensure t
+;;   :hook (python-mode . lsp-deferred)
+;;   :custom
+;;   ;; NOTE: Set these if Python 3 is called "python3" on your system!
+;;   (python-shell-interpreter "python3")
+;;   (dap-python-executable "python3")
+;;   (dap-python-debugger 'debugpy)
+;;   :config
+;;   (require 'dap-python))
+
+;; (use-package pyvenv
+;;   :config
+;;   (pyvenv-mode 1))
+
 (use-package elpy
   :ensure t
   :defer t
   :init
   (advice-add 'python-mode :before 'elpy-enable))
 
+
 (require 'elpy)
-;; https://realpython.com/emacs-the-best-python-editor/
-;; use flycheck not flymake with elpy
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
+(setq lsp-pylsp-plugins-autopep8-enabled +1)
+(setq lsp-pylsp-plugins-flake8-enabled +1)
+(setq lsp-pylsp-plugins-pylint-enabled +1)
 
-;; https://codeberg.org/ideasman42/emacs-py-autopep8
-(use-package py-autopep8
-;  (py-autopep8-options '("--max-line-length=120" ))
-  :hook ((python-mode) . py-autopep8-mode))
-
-
-(add-hook 'elpy-mode-hook 'py-autopep8-mode)
+;;https://realpython.com/emacs-the-best-python-editor/
+;;use flycheck not flymake with elpy
+;; (when (require 'flycheck nil t)
+;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+;;   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
 
-;; https://www.flycheck.org/en/latest/user/syntax-checkers.html
-(flycheck-add-next-checker 'python-flake8 'python-pylint)
+(use-package python-black
+  :demand t
+  :after python
+  :hook (python-mode . python-black-on-save-mode-enable-dwim))
+
+(add-hook 'elpy-mode-hook 'python-black-on-save-mode)
+(add-hook 'python-mode-hook 'python-black-on-save-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; C Programming
@@ -797,7 +809,7 @@
 ;; Org-Mode
 ;;https://orgmode.org/
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Turn on indentation and auto-fill mode for Org files
+;;Turn on indentation and auto-fill mode for Org files
 (defun pet/org-mode-setup ()
   (org-indent-mode)
 ;  (variable-pitch-mode 1)
@@ -811,9 +823,9 @@
   :hook (org-mode . pet/org-mode-setup)
   :ensure t)
 
-(use-package org-bulletsn
-  :after org
-  :hook(org-mode . org-bullets-mode))
+;; (use-package org-bulletsn
+;;   :after org
+;;   :hook(org-mode . org-bullets-mode))
 
 ;; https://github.com/daviwil/dotfiles/blob/master/Emacs.org#org-mode
 ;; Adjust font and size of headings in ORG mode
@@ -977,19 +989,24 @@
       ("mf" "Food" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Food")
        "| %U | %^{Food} | %^{Notes} |" :kill-buffer t)
 
+      ("mc" "Cardio" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Cardio")
+       "| %U | %^{Cardio} | %^{Notes} |" :kill-buffer t)
+
+      ("ml" "Lifting" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Lifting")
+       "| %U | %^{Lifting} | %^{Notes} |" :kill-buffer t)
+      
+      
       ("mw" "Weight" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Weight")
        "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
-
 
 
   (define-key global-map (kbd "C-c j")
     (lambda () (interactive) (org-capture nil "jj")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ORG BABEL
+;;ORG BABEL
+;;https://orgmode.org/worg/org-contrib/babel/languages/index.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; https://orgmode.org/worg/org-contrib/babel/languages/index.html
 (org-babel-do-load-languages
   'org-babel-load-languages
   '((emacs-lisp . t)
@@ -1003,13 +1020,13 @@
 (add-to-list 'org-structure-template-alist '("cc" . "src c"))
 (add-to-list 'org-structure-template-alist '("vl" . "src verilog"))
 
-;;(org-confirm-babel-evaluate nil) ;;supposed to stop asking to execute org-babel code blocks
+;(org-confirm-babel-evaluate nil) ;;supposed to stop asking to execute org-babel code blocks
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ORG ROAM
+;;ORG ROAM
+;;https://github.com/org-roam/org-roam-ui
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; https://github.com/org-roam/org-roam-ui
 (use-package websocket
     :after org-roam)
 
@@ -1025,65 +1042,64 @@
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 
-;; https://github.com/minad/org-modern
-;; (use-package org-modern
-;;   :ensure t)
-;; ;; Option 2: Globally
-;; (global-org-modern-mode)
-
-;; https://github.com/alphapapa/org-super-agenda
-;; (let ((org-super-agenda-groups
-;;        '(;; Each group has an implicit boolean OR operator between its selectors.
-;;          (:name "Today"  ; Optionally specify section name
-;;                 :time-grid t  ; Items that appear on the time grid
-;;                 :todo "TODAY")  ; Items that have this TODO keyword
-;;          (:name "Important"
-;;                 ;; Single arguments given alone
-;;                 :tag "bills"
-;;                 :priority "A")
-;;          ;; Set order of multiple groups at once
-;;          (:order-multi (2 (:name "Shopping in town"
-;;                                  ;; Boolean AND group matches items that match all subgroups
-;;                                  :and (:tag "shopping" :tag "@town"))
-;;                           (:name "Food-related"
-;;                                  ;; Multiple args given in list with implicit OR
-;;                                  :tag ("food" "dinner"))
-;;                           (:name "Personal"
-;;                                  :habit t
-;;                                  :tag "personal")
-;;                           (:name "Space-related (non-moon-or-planet-related)"
-;;                                  ;; Regexps match case-insensitively on the entire entry
-;;                                  :and (:regexp ("space" "NASA")
-;;                                                ;; Boolean NOT also has implicit OR between selectors
-;;                                                :not (:regexp "moon" :tag "planet")))))
-;;          ;; Groups supply their own section names when none are given
-;;          (:todo "WAITING" :order 8)  ; Set order of this section
-;;          (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
-;;                 ;; Show this group at the end of the agenda (since it has the
-;;                 ;; highest number). If you specified this group last, items
-;;                 ;; with these todo keywords that e.g. have priority A would be
-;;                 ;; displayed in that group instead, because items are grouped
-;;                 ;; out in the order the groups are listed.
-;;                 :order 9)
-;;          (:priority<= "B"
-;;                       ;; Show this section after "Today" and "Important", because
-;;                       ;; their order is unspecified, defaulting to 0. Sections
-;;                       ;; are displayed lowest-number-first.
-;;                       :order 1)
-;;          ;; After the last group, the agenda will display items that didn't
-;;          ;; match any of these groups, with the default order position of 99
-;;          )))
-;;   (org-agenda nil "a"))
-
-;; (define-key global-map (kbd "C-c c") 'org-capture)
-;; (define-key global-map (kbd "C-c r") 'org-capture-refile)
-
-;; https://github.com/sk8ingdom/.emacs.d/blob/master/init.el
-;(load "~/.emacs.d/org-todo-states")
-;(load "~/.emacs.d/org-capture-templates")
+;;https://github.com/minad/org-modern
+(use-package org-modern
+  :ensure t)
+;; Option 2: Globally
+(global-org-modern-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Latex
+;;https://github.com/alphapapa/org-super-agenda
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(let ((org-super-agenda-groups
+       '(;; Each group has an implicit boolean OR operator between its selectors.
+         (:name "Today"  ; Optionally specify section name
+                :time-grid t  ; Items that appear on the time grid
+                :todo "TODAY")  ; Items that have this TODO keyword
+         (:name "Important"
+                ;; Single arguments given alone
+                :tag "bills"
+                :priority "A")
+         ;; Set order of multiple groups at once
+         (:order-multi (2 (:name "Shopping in town"
+                                 ;; Boolean AND group matches items that match all subgroups
+                                 :and (:tag "shopping" :tag "@town"))
+                          (:name "Food-related"
+                                 ;; Multiple args given in list with implicit OR
+                                 :tag ("food" "dinner"))
+                          (:name "Personal"
+                                 :habit t
+                                 :tag "personal")
+                          (:name "Space-related (non-moon-or-planet-related)"
+                                 ;; Regexps match case-insensitively on the entire entry
+                                 :and (:regexp ("space" "NASA")
+                                               ;; Boolean NOT also has implicit OR between selectors
+                                               :not (:regexp "moon" :tag "planet")))))
+         ;; Groups supply their own section names when none are given
+         (:todo "WAITING" :order 8)  ; Set order of this section
+         (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
+                ;; Show this group at the end of the agenda (since it has the
+                ;; highest number). If you specified this group last, items
+                ;; with these todo keywords that e.g. have priority A would be
+                ;; displayed in that group instead, because items are grouped
+                ;; out in the order the groups are listed.
+                :order 9)
+         (:priority<= "B"
+                      ;; Show this section after "Today" and "Important", because
+                      ;; their order is unspecified, defaulting to 0. Sections
+                      ;; are displayed lowest-number-first.
+                      :order 1)
+         ;; After the last group, the agenda will display items that didn't
+         ;; match any of these groups, with the default order position of 99
+         )))
+  (org-agenda nil "a"))
+
+(define-key global-map (kbd "C-c c") 'org-capture)
+(define-key global-map (kbd "C-c r") 'org-capture-refile)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Latex
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package lsp-latex
   :ensure t)
@@ -1093,8 +1109,8 @@
    (add-hook 'LaTeX-mode-hook 'lsp))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Company math mode
-;https://github.com/vspinu/company-math
+;;Company math mode
+;;https://github.com/vspinu/company-math
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company-math
   :ensure t)
@@ -1110,8 +1126,8 @@
 (add-hook 'LaTeX-mode-hook 'my-latex-mode-setup)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Auctex
-;https://www.gnu.org/software/auctex/download-for-unix.html
+;;Auctex
+;;https://www.gnu.org/software/auctex/download-for-unix.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package tex
   :ensure auctex)
@@ -1140,14 +1156,12 @@
 (setq org-latex-listings 't)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Plant UML Mode
-;; https://plantuml.com/emacs
+;;Plant UML Mode
+;;https://plantuml.com/emacs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package plantuml-mode
   :ensure t)
 (setq org-plantuml-jar-path (expand-file-name "/usr/share/plantuml/plantuml.jar"))
-;;(add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
-;;(org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; HL TODO Mode
@@ -1174,7 +1188,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Rainbow Delimiters
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package rainbow-delimiters
   :ensure t
   )
@@ -1249,8 +1262,8 @@
 (global-set-key (kbd "<f6>") 'highlight-changes-visible-mode)
 (global-set-key (kbd "S-<f6>") 'highlight-changes-remove-highlight)
 (global-set-key (kbd "<f7>") 'whitespace-mode)
-;(global-set-key (kbd "<f8>") 'python-black-buffer)
-(global-set-key (kbd "<f8>") 'py-autopep8-buffer)
+(global-set-key (kbd "<f8>") 'python-black-buffer)
+;(global-set-key (kbd "<f8>") 'py-autopep8-buffer)
 ;(global-set-key (kbd "<f9>") 'pylint)
 (global-set-key (kbd "<f9>") 'flycheck-list-errors)
 (global-set-key (kbd "<f10>") 'org-capture)

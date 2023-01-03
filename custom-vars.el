@@ -13,7 +13,7 @@
    '("/home/ptracton/Synology/ptracton/org/agenda.org" "/home/ptracton/Synology/ptracton/org/birthdays.org" "/home/ptracton/Synology/ptracton/org/Medtronic.org" "/home/ptracton/Synology/ptracton/org/habits.org"))
  '(org-confirm-babel-evaluate nil)
  '(package-selected-packages
-   '(auctex latex-preview-pane helm-projectile helpful py-autopep8 forge org-bullets org-roam-ui org-super-agenda org-modern lsp-mode yasnippet lsp-treemacs helm-lsp projectile hydra flycheck company avy which-key helm-xref dap-mode))
+   '(python-mode python-black auctex latex-preview-pane helm-projectile helpful py-autopep8 forge org-bullets org-roam-ui org-super-agenda org-modern lsp-mode yasnippet lsp-treemacs helm-lsp projectile hydra flycheck company avy which-key helm-xref dap-mode))
  '(size-indication-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
