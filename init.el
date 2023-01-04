@@ -732,7 +732,7 @@
 
 
 (require 'elpy)
-(setq lsp-pylsp-plugins-autopep8-enabled +1)
+(setq lsp-pylsp-plugins-black-enabled +1)
 (setq lsp-pylsp-plugins-flake8-enabled +1)
 (setq lsp-pylsp-plugins-pylint-enabled +1)
 
@@ -893,7 +893,10 @@
 
   (setq org-refile-targets
     '(("Archive.org" :maxlevel . 1)
-      ("Tasks.org" :maxlevel . 1)))
+      ("agenda.org" :maxlevel . 1)
+      ("Medtronic.org" :maxlevel . 1)
+      )
+    )
 
   ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
@@ -917,14 +920,20 @@
   '(("d" "Dashboard"
      ((agenda "" ((org-deadline-warning-days 7)))
       (todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))
-      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
-
+            ((org-agenda-overriding-header "Next Tasks")))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")))
+      ))
+    
     ("n" "Next Tasks"
      ((todo "NEXT"
         ((org-agenda-overriding-header "Next Tasks")))))
 
+    ("c" "Active Tasks"
+     ((todo "ACTIVE"
+        ((org-agenda-overriding-header "Active Projects")))))
 
+    
     ("W" "Work Tasks" tags-todo "+work")
 
     ;; Low-effort next actions
