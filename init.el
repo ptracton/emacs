@@ -674,6 +674,8 @@
 (setq lsp-ui-peek-peek-height 25)
 (setq lsp-ui-imenu-enable t)
 (setq lsp-ui-doc-enable t)
+(setq lsp-modeline-code-actions-enable t)
+(setq lsp-modeline-code-actions-segments '(count icon name))
 
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
@@ -893,8 +895,8 @@
 
   (setq org-refile-targets
     '(("Archive.org" :maxlevel . 1)
-      ("agenda.org" :maxlevel . 1)
-      ("Medtronic.org" :maxlevel . 1)
+      ("agenda.org" :maxlevel . 2)
+      ("Medtronic.org" :maxlevel . 2)
       )
     )
 
