@@ -178,7 +178,6 @@
   (diminish 'flyspell-mode)
   (diminish 'flyspell-prog-mode)
   (diminish 'eldoc-mode))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Dashboard
 ;; https://github.com/emacs-dashboard/emacs-dashboard
@@ -320,6 +319,9 @@
 
 (use-package forge
   :after magit)
+
+; https://github.com/conao3/dired-git.el
+(add-hook 'dired-mode-hook 'dired-git-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DIFF HL
@@ -808,308 +810,6 @@
   :hook (company-mode . company-box-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Org-Mode
-;;https://orgmode.org/
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Turn on indentation and auto-fill mode for Org files
-(defun pet/org-mode-setup ()
-  (org-indent-mode)
-;  (variable-pitch-mode 1)
-;  (auto-fill-mode 0)
-  (diminish org-indent-mode))
-
-;; M-x insert-char and select "down arrow"
-(use-package org
-  :config (setq org-ellipsis "  ↓"
-                org-hide-emphasis-markers t) ; font-lock will hide characters controlling bold, italic, etc...
-  :hook (org-mode . pet/org-mode-setup)
-  :ensure t)
-
-;; (use-package org-bulletsn
-;;   :after org
-;;   :hook(org-mode . org-bullets-mode))
-
-;; https://github.com/daviwil/dotfiles/blob/master/Emacs.org#org-mode
-;; Adjust font and size of headings in ORG mode
-;; https://emacs.stackexchange.com/questions/62981/error-invalid-face-org-level-1
-;; (with-eval-after-load 'org-faces
-;;   (face '((org-level-1 . 1.3)
-;;           (org-level-2 . 1.2)
-;;           (org-level-3 . 1.1)
-;;           (org-level-4 . 1.0)
-;;           (org-level-5 . 1.1)
-;;           (org-level-6 . 1.1)
-;;           (org-level-7 . 1.1)
-;;           (org-level-8 . 1.1)))
-;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'medium :height (cdr face)))
-
-(use-package org-roam
-  :ensure t
-  :custom
-  (org-roam-directory "/home/ptracton/Synology/ptracton/org-roam")
-  (org-roam-complete-everywhere t)
-  :bind(("C-c n l" . org-roam-buffer-toggle)
-        ("C-c n f" . org-roam-node-find)
-        ("C-c n i" . org-roam-node-insert)
-        ("C-c n g" . org-roam-graph)
-        :map org-mode-map
-        ("C-M-i" . completion-at-point-functions)
-        )
-  :config
-  (org-roam-db-autosync-enable)
-  )
-
-;; https://github.com/bastibe/org-journal
-(use-package org-journal
-  :ensure t
-  :defer t
-  :init
-  ;; Change default prefix key; needs to be set before loading org-journal
-  (setq org-journal-prefix-key "C-c j ")
-  :config
-  (setq org-journal-dir "/home/ptracton/Synology/ptracton/org/journal/"
-        org-journal-date-format "%A, %d %B %Y"))
-
-;(add-to-list 'org-agenda-files "/home/ptracton/Synology/ptracton/org/agenda.org")
-(setq org-agenda-files
-      '("/home/ptracton/Synology/ptracton/org/agenda.org"
-       "/home/ptracton/Synology/ptracton/org/birthdays.org"
-       "/home/ptracton/Synology/ptracton/org/Medtronic.org"
-       "/home/ptracton/Synology/ptracton/org/habits.org"
-       ))
-(setq org-directory "/home/ptracton/Synology/ptracton/org/")
-
-(require 'org-habit)
-(add-to-list 'org-modules 'org-habit)
-(setq org-habit-graph-column 60)
-
-
-;; https://github.com/daviwil/emacs-from-scratch/blob/master/show-notes/Emacs-06.org
-(setq org-agenda-start-with-log-mode t) ;Present a log of what you worked on today
-(setq org-log-done 'time)
-(setq org-log-into-drawer t)
-
-(setq org-todo-keywords
-  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-  (setq org-refile-targets
-    '(("Archive.org" :maxlevel . 1)
-      ("agenda.org" :maxlevel . 2)
-      ("Medtronic.org" :maxlevel . 2)
-      )
-    )
-
-  ;; Save Org buffers after refiling!
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-  (setq org-tag-alist
-    '((:startgroup)
-       ; Put mutually exclusive tags here
-       (:endgroup)
-       ("@errand" . ?E)
-       ("@home" . ?H)
-       ("@work" . ?W)
-       ("agenda" . ?a)
-       ("planning" . ?p)
-       ("publish" . ?P)
-       ("batch" . ?b)
-       ("note" . ?n)
-       ("idea" . ?i)))
-
-;; Configure custom agenda views
-(setq org-agenda-custom-commands
-  '(("d" "Dashboard"
-     ((agenda "" ((org-deadline-warning-days 7)))
-      (todo "NEXT"
-            ((org-agenda-overriding-header "Next Tasks")))
-      (todo "ACTIVE"
-            ((org-agenda-overriding-header "Active Projects")))
-      ))
-    
-    ("n" "Next Tasks"
-     ((todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))))
-
-    ("c" "Active Tasks"
-     ((todo "ACTIVE"
-        ((org-agenda-overriding-header "Active Projects")))))
-
-    
-    ("W" "Work Tasks" tags-todo "+work")
-
-    ;; Low-effort next actions
-    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-     ((org-agenda-overriding-header "Low Effort Tasks")
-      (org-agenda-max-todos 20)
-      (org-agenda-files org-agenda-files)))
-
-    ("w" "Workflow Status"
-     ((todo "WAIT"
-            ((org-agenda-overriding-header "Waiting on External")
-             (org-agenda-files org-agenda-files)))
-      (todo "REVIEW"
-            ((org-agenda-overriding-header "In Review")
-             (org-agenda-files org-agenda-files)))
-      (todo "PLAN"
-            ((org-agenda-overriding-header "In Planning")
-             (org-agenda-todo-list-sublevels nil)
-             (org-agenda-files org-agenda-files)))
-      (todo "BACKLOG"
-            ((org-agenda-overriding-header "Project Backlog")
-             (org-agenda-todo-list-sublevels nil)
-             (org-agenda-files org-agenda-files)))
-      (todo "READY"
-            ((org-agenda-overriding-header "Ready for Work")
-             (org-agenda-files org-agenda-files)))
-      (todo "ACTIVE"
-            ((org-agenda-overriding-header "Active Projects")
-             (org-agenda-files org-agenda-files)))
-      (todo "COMPLETED"
-            ((org-agenda-overriding-header "Completed Projects")
-             (org-agenda-files org-agenda-files)))
-      (todo "CANC"
-            ((org-agenda-overriding-header "Cancelled Projects")
-             (org-agenda-files org-agenda-files)))))))
-
-
-  (setq org-capture-templates
-    `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "/home/ptracton/Synology/ptracton/org/agenda.org" "Inbox")
-           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-
-      ("j" "Journal Entries")
-      ("jj" "Journal" entry
-           (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
-           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-           :clock-in :clock-resume
-           :empty-lines 1)
-      ("jm" "Meeting" entry
-           (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
-           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
-
-      ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
-           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-      ("m" "Metrics Capture")
-
-      ("mf" "Food" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Food")
-       "| %U | %^{Food} | %^{Notes} |" :kill-buffer t)
-
-      ("mc" "Cardio" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Cardio")
-       "| %U | %^{Cardio} | %^{Notes} |" :kill-buffer t)
-
-      ("ml" "Lifting" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Lifting")
-       "| %U | %^{Lifting} | %^{Notes} |" :kill-buffer t)
-      
-      
-      ("mw" "Weight" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Weight")
-       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
-
-
-  (define-key global-map (kbd "C-c j")
-    (lambda () (interactive) (org-capture nil "jj")))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;ORG BABEL
-;;https://orgmode.org/worg/org-contrib/babel/languages/index.html
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(org-babel-do-load-languages
-  'org-babel-load-languages
-  '((emacs-lisp . t)
-    (C . t)
-    (python . t)))
-
-(require 'org-tempo)
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
-(add-to-list 'org-structure-template-alist '("cc" . "src c"))
-(add-to-list 'org-structure-template-alist '("vl" . "src verilog"))
-
-;(org-confirm-babel-evaluate nil) ;;supposed to stop asking to execute org-babel code blocks
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;ORG ROAM
-;;https://github.com/org-roam/org-roam-ui
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package websocket
-    :after org-roam)
-
-(use-package org-roam-ui
-    :after org-roam ;; or :after org
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
-
-;;https://github.com/minad/org-modern
-(use-package org-modern
-  :ensure t)
-;; Option 2: Globally
-(global-org-modern-mode)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;https://github.com/alphapapa/org-super-agenda
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(let ((org-super-agenda-groups
-       '(;; Each group has an implicit boolean OR operator between its selectors.
-         (:name "Today"  ; Optionally specify section name
-                :time-grid t  ; Items that appear on the time grid
-                :todo "TODAY")  ; Items that have this TODO keyword
-         (:name "Important"
-                ;; Single arguments given alone
-                :tag "bills"
-                :priority "A")
-         ;; Set order of multiple groups at once
-         (:order-multi (2 (:name "Shopping in town"
-                                 ;; Boolean AND group matches items that match all subgroups
-                                 :and (:tag "shopping" :tag "@town"))
-                          (:name "Food-related"
-                                 ;; Multiple args given in list with implicit OR
-                                 :tag ("food" "dinner"))
-                          (:name "Personal"
-                                 :habit t
-                                 :tag "personal")
-                          (:name "Space-related (non-moon-or-planet-related)"
-                                 ;; Regexps match case-insensitively on the entire entry
-                                 :and (:regexp ("space" "NASA")
-                                               ;; Boolean NOT also has implicit OR between selectors
-                                               :not (:regexp "moon" :tag "planet")))))
-         ;; Groups supply their own section names when none are given
-         (:todo "WAITING" :order 8)  ; Set order of this section
-         (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
-                ;; Show this group at the end of the agenda (since it has the
-                ;; highest number). If you specified this group last, items
-                ;; with these todo keywords that e.g. have priority A would be
-                ;; displayed in that group instead, because items are grouped
-                ;; out in the order the groups are listed.
-                :order 9)
-         (:priority<= "B"
-                      ;; Show this section after "Today" and "Important", because
-                      ;; their order is unspecified, defaulting to 0. Sections
-                      ;; are displayed lowest-number-first.
-                      :order 1)
-         ;; After the last group, the agenda will display items that didn't
-         ;; match any of these groups, with the default order position of 99
-         )))
-  (org-agenda nil "a"))
-
-(define-key global-map (kbd "C-c c") 'org-capture)
-(define-key global-map (kbd "C-c r") 'org-capture-refile)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Latex
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package lsp-latex
@@ -1235,6 +935,308 @@
 ;; look at interactive functions.
 (global-set-key (kbd "C-h C") #'helpful-command)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org-Mode
+;;https://orgmode.org/
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Turn on indentation and auto-fill mode for Org files
+(defun pet/org-mode-setup ()
+  (org-indent-mode)
+;  (variable-pitch-mode 1)
+;  (auto-fill-mode 0)
+  (diminish org-indent-mode))
+
+;; M-x insert-char and select "down arrow"
+(use-package org
+  :config (setq org-ellipsis "  ↓"
+                org-hide-emphasis-markers t) ; font-lock will hide characters controlling bold, italic, etc...
+  :hook (org-mode . pet/org-mode-setup)
+  :ensure t)
+
+;; (use-package org-bulletsn
+;;   :after org
+;;   :hook(org-mode . org-bullets-mode))
+
+;; https://github.com/daviwil/dotfiles/blob/master/Emacs.org#org-mode
+;; Adjust font and size of headings in ORG mode
+;; https://emacs.stackexchange.com/questions/62981/error-invalid-face-org-level-1
+;; (with-eval-after-load 'org-faces
+;;   (face '((org-level-1 . 1.3)
+;;           (org-level-2 . 1.2)
+;;           (org-level-3 . 1.1)
+;;           (org-level-4 . 1.0)
+;;           (org-level-5 . 1.1)
+;;           (org-level-6 . 1.1)
+;;           (org-level-7 . 1.1)
+;;           (org-level-8 . 1.1)))
+;;   (set-face-attribute (car face) nil :font "Cantarell" :weight 'medium :height (cdr face)))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory "/home/ptracton/Synology/ptracton/org-roam")
+  (org-roam-complete-everywhere t)
+  :bind(("C-c n l" . org-roam-buffer-toggle)
+        ("C-c n f" . org-roam-node-find)
+        ("C-c n i" . org-roam-node-insert)
+        ("C-c n g" . org-roam-graph)
+        :map org-mode-map
+        ("C-M-i" . completion-at-point-functions)
+        )
+  :config
+  (org-roam-db-autosync-enable)
+  )
+
+;; https://github.com/bastibe/org-journal
+(use-package org-journal
+  :ensure t
+  :defer t
+  :init
+  ;; Change default prefix key; needs to be set before loading org-journal
+  (setq org-journal-prefix-key "C-c j ")
+  :config
+  (setq org-journal-dir "/home/ptracton/Synology/ptracton/org/journal/"
+        org-journal-date-format "%A, %d %B %Y"))
+
+;(add-to-list 'org-agenda-files "/home/ptracton/Synology/ptracton/org/agenda.org")
+(setq org-agenda-files
+      '("/home/ptracton/Synology/ptracton/org/agenda.org"
+       "/home/ptracton/Synology/ptracton/org/birthdays.org"
+       "/home/ptracton/Synology/ptracton/org/Medtronic.org"
+       "/home/ptracton/Synology/ptracton/org/habits.org"
+       ))
+(setq org-directory "/home/ptracton/Synology/ptracton/org/")
+
+(require 'org-habit)
+(add-to-list 'org-modules 'org-habit)
+(setq org-habit-graph-column 60)
+
+;; https://github.com/daviwil/emacs-from-scratch/blob/master/show-notes/Emacs-06.org
+(setq org-agenda-start-with-log-mode t) ;Present a log of what you worked on today
+(setq org-log-done 'time)
+(setq org-log-into-drawer t)
+
+(setq org-todo-keywords
+  '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+    (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  (setq org-refile-targets
+    '(("Archive.org" :maxlevel . 1)
+      ("agenda.org" :maxlevel . 2)
+      ("Medtronic.org" :maxlevel . 2)
+      )
+    )
+
+  ;; Save Org buffers after refiling!
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+  (setq org-tag-alist
+    '((:startgroup)
+       ; Put mutually exclusive tags here
+       (:endgroup)
+       ("@errand" . ?E)
+       ("@home" . ?H)
+       ("@work" . ?W)
+       ("agenda" . ?a)
+       ("planning" . ?p)
+       ("publish" . ?P)
+       ("batch" . ?b)
+       ("note" . ?n)
+       ("idea" . ?i)))
+
+;; Configure custom agenda views
+(setq org-agenda-custom-commands
+  '(("d" "Dashboard"
+     ((agenda "" ((org-deadline-warning-days 7)))
+      (todo "NEXT"
+            ((org-agenda-overriding-header "Next Tasks")))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")))
+      ))
+
+    ("n" "Next Tasks"
+     ((todo "NEXT"
+        ((org-agenda-overriding-header "Next Tasks")))))
+
+    ("c" "Active Tasks"
+     ((todo "ACTIVE"
+        ((org-agenda-overriding-header "Active Projects")))))
+
+
+    ("W" "Work Tasks" tags-todo "+work")
+
+    ;; Low-effort next actions
+    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+     ((org-agenda-overriding-header "Low Effort Tasks")
+      (org-agenda-max-todos 20)
+      (org-agenda-files org-agenda-files)))
+
+    ("w" "Workflow Status"
+     ((todo "WAIT"
+            ((org-agenda-overriding-header "Waiting on External")
+             (org-agenda-files org-agenda-files)))
+      (todo "REVIEW"
+            ((org-agenda-overriding-header "In Review")
+             (org-agenda-files org-agenda-files)))
+      (todo "PLAN"
+            ((org-agenda-overriding-header "In Planning")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "BACKLOG"
+            ((org-agenda-overriding-header "Project Backlog")
+             (org-agenda-todo-list-sublevels nil)
+             (org-agenda-files org-agenda-files)))
+      (todo "READY"
+            ((org-agenda-overriding-header "Ready for Work")
+             (org-agenda-files org-agenda-files)))
+      (todo "ACTIVE"
+            ((org-agenda-overriding-header "Active Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "COMPLETED"
+            ((org-agenda-overriding-header "Completed Projects")
+             (org-agenda-files org-agenda-files)))
+      (todo "CANC"
+            ((org-agenda-overriding-header "Cancelled Projects")
+             (org-agenda-files org-agenda-files)))))))
+
+
+  (setq org-capture-templates
+    `(("t" "Tasks / Projects")
+      ("tt" "Task" entry (file+olp "/home/ptracton/Synology/ptracton/org/agenda.org" "Inbox")
+           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
+
+      ("j" "Journal Entries")
+      ("jj" "Journal" entry
+           (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1)
+      ("jm" "Meeting" entry
+           (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
+           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+           :clock-in :clock-resume
+           :empty-lines 1)
+
+      ("w" "Workflows")
+      ("we" "Checking Email" entry (file+olp+datetree "/home/ptracton/Synology/ptracton/org/journal.org")
+           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
+
+      ("m" "Metrics Capture")
+
+      ("mf" "Food" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Food")
+       "| %U | %^{Food} | %^{Notes} |" :kill-buffer t)
+
+      ("mc" "Cardio" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Cardio")
+       "| %U | %^{Cardio} | %^{Notes} |" :kill-buffer t)
+
+      ("ml" "Lifting" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Lifting")
+       "| %U | %^{Lifting} | %^{Notes} |" :kill-buffer t)
+
+
+      ("mw" "Weight" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Weight")
+       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+
+
+  (define-key global-map (kbd "C-c j")
+    (lambda () (interactive) (org-capture nil "jj")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;ORG BABEL
+;;https://orgmode.org/worg/org-contrib/babel/languages/index.html
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(org-babel-do-load-languages
+  'org-babel-load-languages
+  '((emacs-lisp . t)
+    (C . t)
+    (python . t)))
+
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("py" . "src python"))
+(add-to-list 'org-structure-template-alist '("cc" . "src c"))
+(add-to-list 'org-structure-template-alist '("vl" . "src verilog"))
+
+;(org-confirm-babel-evaluate nil) ;;supposed to stop asking to execute org-babel code blocks
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;https://github.com/alphapapa/org-super-agenda
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(let ((org-super-agenda-groups
+       '(;; Each group has an implicit boolean OR operator between its selectors.
+         (:name "Today"  ; Optionally specify section name
+                :time-grid t  ; Items that appear on the time grid
+                :todo "TODAY")  ; Items that have this TODO keyword
+         (:name "Important"
+                ;; Single arguments given alone
+                :tag "bills"
+                :priority "A")
+         ;; Set order of multiple groups at once
+         (:order-multi (2 (:name "Shopping in town"
+                                 ;; Boolean AND group matches items that match all subgroups
+                                 :and (:tag "shopping" :tag "@town"))
+                          (:name "Food-related"
+                                 ;; Multiple args given in list with implicit OR
+                                 :tag ("food" "dinner"))
+                          (:name "Personal"
+                                 :habit t
+                                 :tag "personal")
+                          (:name "Space-related (non-moon-or-planet-related)"
+                                 ;; Regexps match case-insensitively on the entire entry
+                                 :and (:regexp ("space" "NASA")
+                                               ;; Boolean NOT also has implicit OR between selectors
+                                               :not (:regexp "moon" :tag "planet")))))
+         ;; Groups supply their own section names when none are given
+         (:todo "WAITING" :order 8)  ; Set order of this section
+         (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
+                ;; Show this group at the end of the agenda (since it has the
+                ;; highest number). If you specified this group last, items
+                ;; with these todo keywords that e.g. have priority A would be
+                ;; displayed in that group instead, because items are grouped
+                ;; out in the order the groups are listed.
+                :order 9)
+         (:priority<= "B"
+                      ;; Show this section after "Today" and "Important", because
+                      ;; their order is unspecified, defaulting to 0. Sections
+                      ;; are displayed lowest-number-first.
+                      :order 1)
+         ;; After the last group, the agenda will display items that didn't
+         ;; match any of these groups, with the default order position of 99
+         )))
+  (org-agenda nil "a"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;ORG ROAM
+;;https://github.com/org-roam/org-roam-ui
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package websocket
+    :after org-roam)
+
+(use-package org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
+
+;;https://github.com/minad/org-modern
+(use-package org-modern
+  :ensure t)
+;; Option 2: Globally
+(global-org-modern-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; https://github.com/jming422/fira-code-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;(use-package fira-code-mode
+;  :config (global-fira-code-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function to remove ^M from end of line
@@ -1251,6 +1253,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
+
+(define-key global-map (kbd "C-c c") 'org-capture)
+(define-key global-map (kbd "C-c r") 'org-capture-refile)
 
 ;; Adjust font size like web browsers
 (global-set-key (kbd "C-=") #'text-scale-increase)
