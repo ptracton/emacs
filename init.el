@@ -37,10 +37,6 @@
 ;; Always load newest byte code
 (setq load-prefer-newer t)
 
-;; reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
-(setq gc-cons-threshold 50000000)
-
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
@@ -178,6 +174,7 @@
   (diminish 'flyspell-mode)
   (diminish 'flyspell-prog-mode)
   (diminish 'eldoc-mode))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Dashboard
 ;; https://github.com/emacs-dashboard/emacs-dashboard
@@ -212,9 +209,9 @@
                         (agenda . 5)
                         (registers . 5)))
 
-;; (setq dashboard-item-names '(("Recent Files:" . "Recently opened files:")
-;;                              ("Agenda for today:" . "Today's agenda:")
-;;                              ("Agenda for the coming week:" . "Agenda:")))
+(setq dashboard-item-names '(("Recent Files:" . "Recently opened files:")
+                             ("Agenda for today:" . "Today's agenda:")
+                             ("Agenda for the coming week:" . "Agenda:")))
 
 ;;(setq dashboard-set-heading-icons t)
 (setq dashboard-set-file-icons t)
@@ -241,27 +238,6 @@
 (with-eval-after-load 'flycheck
   (flycheck-pos-tip-mode))
 
-;(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Projectile
-;; https://github.com/bbatsov/projectile
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package projectile
-;;   :diminish projectile-mode
-;;   :config (projectile-mode)
-;;   :custom (projectile-completion-system 'helm)
-;;   :init
-;;   (setq projectile-project-search-path '("~/src/software/STM32L423KC" "~/src/hardware/wide_memory" "~/src/hardware/project_stub" "~/src/stm32_cmsis_nn/firmware/L432KC" "~/STM32Cube/Repository/" "~/src/DTREE" "~/Synology/ptracton/MDT_ONNX"))
-;;   :config
-;;   ;; I typically use this keymap prefix on macOS
-;;   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-;;   ;; On Linux, however, I usually go with another one
-;;   (define-key projectile-mode-map (kbd "C-c C-p") 'projectile-command-map)
-;;   (global-set-key (kbd "C-c p") 'projectile-command-map)
-;;   (projectile-mode +1))
-;; (setq projectile-switch-project-action #'projectile-dired)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helm
 ;; https://tuhdo.github.io/helm-intro.html
@@ -278,25 +254,6 @@
 (setq helm-buffers-fuzzy-matching t
       helm-recentf-fuzzy-match    t)
 (setq helm-lisp-fuzzy-completion t)
-
-
-;; https://github.com/bbatsov/helm-projectile
-;; https://tuhdo.github.io/helm-projectile.html
-;; (use-package helm-projectile
-;;   :ensure t
-;;   :config
-;;   (helm-projectile-on)
-;;   )
-
-;; (use-package helm-flycheck
-;;   :ensure t) ;; Not necessary if using ELPA package
-
-;; (eval-after-load 'flycheck
-;;   '(define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
-
-;; (setq projectile-completion-system 'helm)
-;; (setq projectile-switch-project-action 'helm-projectile-find-file)
-;; (setq projectile-switch-project-action 'helm-projectile)
 
 (use-package helm-icons
   :ensure t)
@@ -317,11 +274,6 @@
 (use-package magit-todos
   :ensure t)
 
-(use-package forge
-  :after magit)
-
-; https://github.com/conao3/dired-git.el
-(add-hook 'dired-mode-hook 'dired-git-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DIFF HL
@@ -365,20 +317,6 @@
   :config
   (windsize-default-keybindings)
   )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Imenu-list
-;; https://github.com/bmag/imenu-list
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; (use-package imenu
-;;   :ensure t
-;;   )
-;; (use-package imenu-list
-;;   :ensure t
-;;   )
-
-;; (setq imenu-list-auto-resize t)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Treemacs
@@ -472,9 +410,9 @@
         ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
 
-(use-package treemacs-projectile
-  :after (treemacs projectile)
-  :ensure t)
+;(use-package treemacs-projectile
+;  :after (treemacs projectile)
+;  :ensure t)
 
 (use-package treemacs-icons-dired
   :hook (dired-mode . treemacs-icons-dired-enable-once)
@@ -532,7 +470,7 @@
 (setq doom-modeline-minor-modes nil)
 
 ;; If non-nil, a word count will be added to the selection-info modeline segment.
-(setq doom-modeline-enable-word-count nil)
+(setq doom-modeline-enable-word-count t)
 
 ;; Major modes in which to display word count continuously.
 ;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
@@ -582,64 +520,32 @@
 ;; Whether display the buffer name.
 (setq doom-modeline-buffer-name t)
 
-;; Whether display the minor modes in the mode-line.
-(setq doom-modeline-minor-modes nil)
-
-;; If non-nil, a word count will be added to the selection-info modeline segment.
-(setq doom-modeline-enable-word-count nil)
-
-;; Major modes in which to display word count continuously.
-;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
-;; If it brings the sluggish issue, disable `doom-modeline-enable-word-count' or
-;; remove the modes from `doom-modeline-continuous-word-count-modes'.
-(setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
-
-;; Whether display the buffer encoding.
-(setq doom-modeline-buffer-encoding t)
-
-;; Whether display the indentation information.
-(setq doom-modeline-indent-info nil)
-
-;; If non-nil, only display one number for checker information if applicable.
-(setq doom-modeline-checker-simple-format t)
-
-;; The maximum number displayed for notifications.
-(setq doom-modeline-number-limit 99)
-
-;; The maximum displayed length of the branch name of version control.
-(setq doom-modeline-vcs-max-length 12)
-
-;; Whether display the workspace name. Non-nil to display in the mode-line.
-(setq doom-modeline-workspace-name t)
-
-;; Whether display the perspective name. Non-nil to display in the mode-line.
-(setq doom-modeline-persp-name t)
-
-;; If non nil the default perspective name is displayed in the mode-line.
-(setq doom-modeline-display-default-persp-name nil)
-
-;; If non nil the perspective name is displayed alongside a folder icon.
-(setq doom-modeline-persp-icon t)
-
-;; Whether display the `lsp' state. Non-nil to display in the mode-line.
-(setq doom-modeline-lsp t)
-
-;; Whether display the GitHub notifications. It requires `ghub' package.
-(setq doom-modeline-github nil)
-
-;; The interval of checking GitHub.
-(setq doom-modeline-github-interval (* 30 60))
-
-;; Whether display the modal state icon.
-;; Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc.
-(setq doom-modeline-modal-icon t)
-
 ;; Whether display the environment version.
 (setq doom-modeline-env-version t)
 ;; Or for individual languages
 (setq doom-modeline-env-enable-python t)
 
 (setq doom-modeline-env-python-executable "python3")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LSP Bridge
+;; https://github.com/manateelazycat/lsp-bridge
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; (add-to-list 'load-path "~/lsp-bridge")
+
+;; (require 'yasnippet)
+;; (yas-global-mode 1)
+
+;; (require 'lsp-bridge)
+;; (global-lsp-bridge-mode)
+
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; LSP Mode
@@ -683,51 +589,29 @@
 (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
 (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
 (add-hook 'emacs-lisp-mode-hook #'lsp)
+
+
 (use-package lsp-treemacs
   :ensure t
   :commands lsp-treemacs-errors-list)
 
-                                        ; https://github.com/emacs-lsp/lsp-treemacs
+; https://github.com/emacs-lsp/lsp-treemacs
 (lsp-treemacs-sync-mode 1)
 
 (setq lsp-warn-no-matched-clients nil)
 
-;;; LSP Support
-;; (unless (package-installed-p 'eglot)
-;;   (package-install 'eglot))
-
-;; ;; Enable LSP support by default in programming buffers
-;; (add-hook 'prog-mode-hook #'eglot-ensure)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Verilog LSP Setup
-;; https://github.com/suoto/hdl_checker
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;; Verilog LSP Setup
+;; ;; https://github.com/suoto/hdl_checker
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 '(lsp-clients-svlangserver-formatCommand
-  "~/src/software/Verible/verible-v0.0-2056-g3a70454e/bin/verible-verilog-format")
+  "~/src/verible-v0.0-2509-g1b2b9e5c/bin/verible-verilog-format")
 '(lsp-clients-svlangserver-launchConfiguration "/usr/bin/verilator -sv --lint-only -Wall")
 (add-hook 'verilog-mode-hook #'lsp-deferred)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python Programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; (use-package python-mode
-;;   :ensure t
-;;   :hook (python-mode . lsp-deferred)
-;;   :custom
-;;   ;; NOTE: Set these if Python 3 is called "python3" on your system!
-;;   (python-shell-interpreter "python3")
-;;   (dap-python-executable "python3")
-;;   (dap-python-debugger 'debugpy)
-;;   :config
-;;   (require 'dap-python))
-
-;; (use-package pyvenv
-;;   :config
-;;   (pyvenv-mode 1))
-
 (use-package elpy
   :ensure t
   :defer t
@@ -759,7 +643,7 @@
 ;; C Programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs helm-lsp
-                                           projectile hydra flycheck company avy which-key helm-xref dap-mode))
+                                           projectile hydra flycheck company avy which-key helm-xref))
 
 (when (cl-find-if-not #'package-installed-p package-selected-packages)
   (package-refresh-contents)
@@ -774,8 +658,6 @@
 (define-key global-map [remap switch-to-buffer] #'helm-mini)
 
 (which-key-mode)
-(add-hook 'c-mode-hook 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
 
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
@@ -784,156 +666,6 @@
       company-minimum-prefix-length 1
       lsp-idle-delay 0.1)  ;; clangd is fast
 
-(with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-  (require 'dap-cpptools)
-  (yas-global-mode))
-
-;; (use-package ccls
-;;   :hook ((c-mode c++-mode objc-mode cuda-mode) .
-;;          (lambda () (require 'ccls) (lsp))))
-;; (setq ccls-executable "/usr/bin/ccls")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Company
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package company
-  :ensure t
-  :hook (prog-mode . company-mode)
-  :custom
-  (company-backends '(company-capf)))
-
-
-;; With use-package:
-(use-package company-box
-  :ensure t
-  :hook (company-mode . company-box-mode))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Latex
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package lsp-latex
-  :ensure t)
-
- (with-eval-after-load "tex-mode"
-   (add-hook 'TeX-mode-hook 'lsp)
-   (add-hook 'LaTeX-mode-hook 'lsp))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Company math mode
-;;https://github.com/vspinu/company-math
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package company-math
-  :ensure t)
-
-;(add-to-list 'company-backends 'company-math-symbols-unicode)
-
-(defun my-latex-mode-setup ()
-  (setq-local company-backends
-              (append '((company-math-symbols-latex company-latex-commands))
-                      company-backends)))
-
-(add-hook 'TeX-mode-hook 'my-latex-mode-setup)
-(add-hook 'LaTeX-mode-hook 'my-latex-mode-setup)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Auctex
-;;https://www.gnu.org/software/auctex/download-for-unix.html
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package tex
-  :ensure auctex)
-
-;; https://www.gnu.org/software/auctex/manual/auctex/Quick-Start.html#Quick-Start
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
-
-(latex-preview-pane-enable)
-
-;;https://jakebox.github.io/youtube/org_latex_video.html
-(with-eval-after-load 'ox-latex
-(add-to-list 'org-latex-classes
-             '("org-plain-latex"
-               "\\documentclass{article}
-           [NO-DEFAULT-PACKAGES]
-           [PACKAGES]
-           [EXTRA]"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-
-(setq org-latex-listings 't)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Plant UML Mode
-;;https://plantuml.com/emacs
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package plantuml-mode
-  :ensure t)
-(setq org-plantuml-jar-path (expand-file-name "/usr/share/plantuml/plantuml.jar"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; HL TODO Mode
-;; https://github.com/tarsius/hl-todo
-;; https://www.reddit.com/r/emacs/comments/f8tox6/todo_highlighting/
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package hl-todo
-  :hook ((prog-mode . hl-todo-mode)
-         (python-mode . hl-todo-mode)
-         (c-mode . hl-todo-mode)
-         (verilog-mode . hl-todo-mode)
-         (emacs-lisp-mode . hl-todo-mode)
-         )
-  :config
-  (setq hl-todo-highlight-punctuation ":"
-        hl-todo-keyword-faces
-        `(("TODO"       warning bold)
-          ("FIXME"      error bold)
-          ("HACK"       font-lock-constant-face bold)
-          ("REVIEW"     font-lock-keyword-face bold)
-          ("NOTE"       success bold)
-          ("DEPRECATED" font-lock-doc-face bold))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Rainbow Delimiters
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package rainbow-delimiters
-  :ensure t
-  )
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Helpful
-;; https://github.com/Wilfred/helpful
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package helpful
-  :ensure t)
-;; Note that the built-in `describe-function' includes both functions
-;; and macros. `helpful-function' is functions only, so we provide
-;; `helpful-callable' as a drop-in replacement.
-(global-set-key (kbd "C-h f") #'helpful-callable)
-
-(global-set-key (kbd "C-h v") #'helpful-variable)
-(global-set-key (kbd "C-h k") #'helpful-key)
-
-;; Lookup the current symbol at point. C-c C-d is a common keybinding
-;; for this in lisp modes.
-(global-set-key (kbd "C-c C-d") #'helpful-at-point)
-
-;; Look up *F*unctions (excludes macros).
-;;
-;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
-;; already links to the manual, if a function is referenced there.
-(global-set-key (kbd "C-h F") #'helpful-function)
-
-;; Look up *C*ommands.
-;;
-;; By default, C-h C is bound to describe `describe-coding-system'. I
-;; don't find this very useful, but it's frequently useful to only
-;; look at interactive functions.
-(global-set-key (kbd "C-h C") #'helpful-command)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org-Mode
@@ -1010,6 +742,7 @@
 (require 'org-habit)
 (add-to-list 'org-modules 'org-habit)
 (setq org-habit-graph-column 60)
+
 
 ;; https://github.com/daviwil/emacs-from-scratch/blob/master/show-notes/Emacs-06.org
 (setq org-agenda-start-with-log-mode t) ;Present a log of what you worked on today
@@ -1133,7 +866,6 @@
       ("ml" "Lifting" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Lifting")
        "| %U | %^{Lifting} | %^{Notes} |" :kill-buffer t)
 
-
       ("mw" "Weight" table-line (file+headline "/home/ptracton/Synology/ptracton/org/metrics.org" "Weight")
        "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
@@ -1159,6 +891,32 @@
 (add-to-list 'org-structure-template-alist '("vl" . "src verilog"))
 
 ;(org-confirm-babel-evaluate nil) ;;supposed to stop asking to execute org-babel code blocks
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;ORG ROAM
+;;https://github.com/org-roam/org-roam-ui
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package websocket
+    :after org-roam)
+
+(use-package org-roam-ui
+    :after org-roam ;; or :after org
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
+
+;;https://github.com/minad/org-modern
+(use-package org-modern
+  :ensure t)
+;; Option 2: Globally
+(global-org-modern-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;https://github.com/alphapapa/org-super-agenda
@@ -1206,37 +964,108 @@
          )))
   (org-agenda nil "a"))
 
+(define-key global-map (kbd "C-c c") 'org-capture)
+(define-key global-map (kbd "C-c r") 'org-capture-refile)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;ORG ROAM
-;;https://github.com/org-roam/org-roam-ui
+;;Auctex
+;;https://www.gnu.org/software/auctex/download-for-unix.html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package websocket
-    :after org-roam)
+(use-package tex
+  :ensure auctex)
 
-(use-package org-roam-ui
-    :after org-roam ;; or :after org
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
+;; https://www.gnu.org/software/auctex/manual/auctex/Quick-Start.html#Quick-Start
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
 
-;;https://github.com/minad/org-modern
-(use-package org-modern
+(latex-preview-pane-enable)
+
+;;https://jakebox.github.io/youtube/org_latex_video.html
+(with-eval-after-load 'ox-latex
+(add-to-list 'org-latex-classes
+             '("org-plain-latex"
+               "\\documentclass{article}
+           [NO-DEFAULT-PACKAGES]
+           [PACKAGES]
+           [EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+
+(setq org-latex-listings 't)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Plant UML Mode
+;;https://plantuml.com/emacs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package plantuml-mode
   :ensure t)
-;; Option 2: Globally
-(global-org-modern-mode)
+(setq org-plantuml-jar-path (expand-file-name "/usr/share/plantuml/plantuml.jar"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; https://github.com/jming422/fira-code-mode
+;; HL TODO Mode
+;; https://github.com/tarsius/hl-todo
+;; https://www.reddit.com/r/emacs/comments/f8tox6/todo_highlighting/
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(use-package fira-code-mode
-;  :config (global-fira-code-mode))
+(use-package hl-todo
+  :hook ((prog-mode . hl-todo-mode)
+         (python-mode . hl-todo-mode)
+         (c-mode . hl-todo-mode)
+         (verilog-mode . hl-todo-mode)
+         (emacs-lisp-mode . hl-todo-mode)
+         )
+  :config
+  (setq hl-todo-highlight-punctuation ":"
+        hl-todo-keyword-faces
+        `(("TODO"       warning bold)
+          ("FIXME"      error bold)
+          ("HACK"       font-lock-constant-face bold)
+          ("REVIEW"     font-lock-keyword-face bold)
+          ("NOTE"       success bold)
+          ("DEPRECATED" font-lock-doc-face bold))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Rainbow Delimiters
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package rainbow-delimiters
+  :ensure t
+  )
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Helpful
+;; https://github.com/Wilfred/helpful
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package helpful
+  :ensure t)
+;; Note that the built-in `describe-function' includes both functions
+;; and macros. `helpful-function' is functions only, so we provide
+;; `helpful-callable' as a drop-in replacement.
+(global-set-key (kbd "C-h f") #'helpful-callable)
+
+(global-set-key (kbd "C-h v") #'helpful-variable)
+(global-set-key (kbd "C-h k") #'helpful-key)
+
+;; Lookup the current symbol at point. C-c C-d is a common keybinding
+;; for this in lisp modes.
+(global-set-key (kbd "C-c C-d") #'helpful-at-point)
+
+;; Look up *F*unctions (excludes macros).
+;;
+;; By default, C-h F is bound to `Info-goto-emacs-command-node'. Helpful
+;; already links to the manual, if a function is referenced there.
+(global-set-key (kbd "C-h F") #'helpful-function)
+
+;; Look up *C*ommands.
+;;
+;; By default, C-h C is bound to describe `describe-coding-system'. I
+;; don't find this very useful, but it's frequently useful to only
+;; look at interactive functions.
+(global-set-key (kbd "C-h C") #'helpful-command)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function to remove ^M from end of line
@@ -1253,9 +1082,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
-
-(define-key global-map (kbd "C-c c") 'org-capture)
-(define-key global-map (kbd "C-c r") 'org-capture-refile)
 
 ;; Adjust font size like web browsers
 (global-set-key (kbd "C-=") #'text-scale-increase)
@@ -1314,18 +1140,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set Theme and Colors
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package doom-themes
-  :ensure t
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
+;(use-package doom-themes
+;  :ensure t
+;  :config
+;  ;; Global settings (defaults)
+;  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+;        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+;  (load-theme 'doom-one t)
 
-  (doom-themes-org-config))
-
-(set-background-color "black")
+;  (doom-themes-org-config))
 
 
+(use-package moe-theme
+  :ensure t)
+(moe-dark)
+
+;(setq moe-theme-modeline-color 'red) ;Red means green for some reason
+;(use-package vscode-dark-plus-theme
+;  :ensure t
+;  :config
+;  (load-theme 'vscode-dark-plus t))
+
+;
+;(load-theme 'zenburn t)
+;(load-theme 'spacemacs-dark)
+;(load-theme 'afternoon)
+;(load-theme dracula t)
+
+;(set-background-color "black")
 (provide 'init)
 ;;; init.el ends here
