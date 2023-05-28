@@ -13,7 +13,7 @@
  '(org-agenda-files nil)
  '(org-confirm-babel-evaluate nil)
  '(package-selected-packages
-   '(python-black latex-preview-pane auctex org-modern org-journal org-roam lsp-mode yasnippet lsp-treemacs helm-lsp projectile hydra flycheck company avy which-key helm-xref))
+   '(vertico treemacs-all-the-icons all-the-icons-ibuffer all-the-icons-gnus all-the-icons-dired all-the-icons-completion all-the-icons python-black latex-preview-pane auctex org-modern org-journal org-roam lsp-mode yasnippet lsp-treemacs helm-lsp projectile hydra flycheck company avy which-key helm-xref))
  '(size-indication-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

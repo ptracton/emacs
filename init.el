@@ -15,7 +15,7 @@
 ;; keep the installed packages in .emacs.d
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 (package-initialize)
-(package-refresh-contents)
+;(package-refresh-contents)
 
 ;; update the package metadata is the local cache is missing
 (unless package-archive-contents
@@ -58,7 +58,6 @@
 (display-time-mode t)
 
 ; Show line numbers everywhere
-(line-number-mode t)
 (global-display-line-numbers-mode t)
 
 ; Show the column numbers
@@ -76,9 +75,6 @@
 ; https://www.emacswiki.org/emacs/ShowParenMode
 (show-paren-mode 1)
 
-; https://www.gnu.org/software/emacs/manual/html_node/emacs/Visual-Line-Mode.html#:~:text=To%20turn%20on%20Visual%20Line,Line%20mode)%20%27%20menu%20item.
-(global-visual-line-mode 1)
-
 ;; turn on font-lock mode everywhere
 (global-font-lock-mode t)
 
@@ -94,9 +90,6 @@
 
 ; Turn all tabs into spaces
 (setq-default indent-tabs-mode nil)
-
-;; Newline at end of file
-(setq require-final-newline t)
 
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
@@ -163,9 +156,6 @@
 ;; prevent using pop up UI dialog boxes
 (setq use-dialog-box nil)
 
-;; revert buffers when the underlying file has changed
-(global-auto-revert-mode 1)
-
 ;https://github.com/emacsmirror/diminish
 (use-package diminish
   :ensure t
@@ -198,7 +188,7 @@
 ;; - a cons of '("path/to/your/image.png" . "path/to/your/text.txt")
 
 ;; Content is not centered by default. To center, set
-;; (setq dashboard-center-content t)
+(setq dashboard-center-content t)
 
 ;; ;; To disable shortcut "jump" indicators for each section, set
 ;; (setq dashboard-show-shortcuts nil)
@@ -213,16 +203,20 @@
                              ("Agenda for today:" . "Today's agenda:")
                              ("Agenda for the coming week:" . "Agenda:")))
 
-;;(setq dashboard-set-heading-icons t)
+;(setq dashboard-icon-type 'all-the-icons) ;; use `all-the-icons' package
+(setq dashboard-set-heading-icons t)
 (setq dashboard-set-file-icons t)
 (setq dashboard-set-navigator t)
 (setq dashboard-set-init-info t)
+
+; https://github.com/domtronn/all-the-icons.el
+(use-package all-the-icons
+  :if (display-graphic-p))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Flycheck
 ;; https://www.flycheck.org/en/latest/
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode)
@@ -271,10 +265,6 @@
   :ensure t
   :bind (("s-g" . git-timemachine)))
 
-(use-package magit-todos
-  :ensure t)
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DIFF HL
 ;; https://github.com/dgutov/diff-hl
@@ -322,6 +312,7 @@
 ;; Treemacs
 ;; https://github.com/Alexander-Miller/treemacs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;https://github.com/Alexander-Miller/treemacs/issues/748#issuecomment-736678921
 (use-package treemacs
   :ensure t
   :defer t
@@ -420,13 +411,6 @@
 
 (use-package treemacs-magit
   :after (treemacs magit)
-  :ensure t)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Disk Usage
-;; https://github.com/emacs-straight/disk-usage
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package disk-usage
   :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -643,7 +627,7 @@
 ;; C Programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs helm-lsp
-                                           projectile hydra flycheck company avy which-key helm-xref))
+                                           flycheck  which-key helm-xref))
 
 (when (cl-find-if-not #'package-installed-p package-selected-packages)
   (package-refresh-contents)
@@ -662,8 +646,6 @@
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
       treemacs-space-between-root-nodes nil
-      company-idle-delay 0.0
-      company-minimum-prefix-length 1
       lsp-idle-delay 0.1)  ;; clangd is fast
 
 
@@ -1126,34 +1108,34 @@
   )
 
 ;https://www.reddit.com/r/emacs/comments/zks4s3/open_things_automatically_on_startup/
-;; (add-hook 'emacs-startup-hook
-;;    (lambda ()
-;;      (kill-buffer "*scratch*")
-;;             (kill-buffer "*Messages*")
-;;             (kill-buffer "*Warnings*")
-;;      (split-window-below)
-;;      (other-window 1)  ; Go to the new window
-;;      (ansi-term "/bin/bash")
-;;      (other-window 0)  ; Back to main window
-;; ))
+(add-hook 'emacs-startup-hook
+   (lambda ()
+     (kill-buffer "*scratch*")
+ ;    (kill-buffer "*Messages*")
+ ;    (kill-buffer "*Warnings*")
+;     (split-window-below)
+;     (other-window 1)  ; Go to the new window
+;     (ansi-term "/bin/bash")
+;     (other-window 0)  ; Back to main window
+))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set Theme and Colors
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;(use-package doom-themes
-;  :ensure t
-;  :config
-;  ;; Global settings (defaults)
-;  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-;        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-;  (load-theme 'doom-one t)
+(use-package doom-themes
+  :ensure t
+  :config
+ ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-one t)
 
-;  (doom-themes-org-config))
+  (doom-themes-org-config))
 
 
-(use-package moe-theme
-  :ensure t)
-(moe-dark)
+;(use-package moe-theme
+;  :ensure t)
+;(moe-dark)
 
 ;(setq moe-theme-modeline-color 'red) ;Red means green for some reason
 ;(use-package vscode-dark-plus-theme
@@ -1167,6 +1149,6 @@
 ;(load-theme 'afternoon)
 ;(load-theme dracula t)
 
-;(set-background-color "black")
+(set-background-color "black")
 (provide 'init)
 ;;; init.el ends here
