@@ -1,455 +1,194 @@
-;; -*- mode: emacs-lisp -*-
+;;; init.el --- Phil Tracton's Gemini-IDE (Mint 22.1 / Emacs 29.3)
 
-;;;
-;;; EMACS CONFIGURATION
-;;;
+;; =============================================================================
+;; QUICK REFERENCE: ORG-MODE, KNOWLEDGE & CALENDAR
+;; =============================================================================
+;;  TASKS & AGENDA:
+;;    C-c a       : Open Agenda (Daily/Weekly view)
+;;    C-c c       : Capture (Quick add Task or Log entry)
+;;    Tab         : Cycle TODO -> DONE (within an .org file)
+;;    C-c [       : Add current file to the Agenda list
+;;    C-c C-s     : Schedule a task (Adds to Calendar/Agenda)
+;;    C-c C-d     : Set a Deadline
+;;
+;;  JOURNALING & TIME TRACKING:
+;;    C-c c l     : Daily Engineering Log (Auto-dates and files)
+;;    C-c c t     : Quick Task (Enters into your global Inbox)
+;;    C-c C-x C-i : Clock In (Start timer on current task)
+;;    C-c C-x C-o : Clock Out (Stop timer)
+;;
+;;  ORG-ROAM (Zettelkasten / Knowledge Graph):
+;;    C-c n f     : Find or Create a Node (e.g., "Verilog-Best-Practices")
+;;    C-c n i     : Insert a Link to another Node (Links them in the Graph)
+;;    C-c n l     : Toggle Roam Buffer (See what links TO this file)
+;;    C-c n g     : Graph View (See your brain in a web browser)
+;;
+;; =============================================================================
+;; QUICK REFERENCE: PROJECT, LSP & EDITING
+;; =============================================================================
+;;  F1 : Recent Files (Helm)      F2 : Git Status (Magit)
+;;  F5 : Project Build (Make)     F6 : Toggle Git Blame (Inline)
+;;  C-c p s : Ripgrep Project     C-c p f : Find File in Project
+;;  C-x t t : Toggle Treemacs     C-c l s : LSP Symbol Tree (Outline)
+;;
+;;  EDITING & FORMATTING:
+;;  F3 : Clean WhiteSpace         F4 : Toggle Rainbow Delims
+;;  C-a : Smart Home (Crux)       C-c i : Indent Entire Buffer
+;;  C-c t : Toggle HDL (.v/.vh)   M-s   : Avy Jump (Quick Jump)
+;;  C-= / C-- : Font Scale Up/Dn  C-> / C-< : Multiple Cursors
+;; =============================================================================
 
+;; --- 1. User Identity & Typography ---
+(setq user-full-name "Phil Tracton" user-mail-address "ptracton@gmail.com")
+(set-face-attribute 'default nil :family "Fira Code" :height 140)
 
-;; -------------------------------
-;; Basic Package Setup
-;; -------------------------------
+(global-set-key (kbd "C-=") (lambda () (interactive) (let ((s (+ (face-attribute 'default :height) 10))) (set-face-attribute 'default nil :height s))))
+(global-set-key (kbd "C--") (lambda () (interactive) (let ((s (- (face-attribute 'default :height) 10))) (set-face-attribute 'default nil :height s))))
+
+;; --- 2. Performance & Path Inheritance ---
+(use-package gcmh :ensure t :init (gcmh-mode 1)) 
+(use-package exec-path-from-shell
+  :ensure t
+  :if (memq window-system '(x pgtk))
+  :config (exec-path-from-shell-initialize))
+
+(setq read-process-output-max (* 1024 1024) inhibit-startup-message t make-backup-files nil require-final-newline t)
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq-default indent-tabs-mode nil tab-width 4 c-basic-offset 4)
+
+;; --- 3. UI, Themes & Line Management ---
+(global-display-line-numbers-mode t)
+(global-hl-line-mode 1)
+(scroll-bar-mode 1) (tool-bar-mode 1) (menu-bar-mode 1) (column-number-mode t)
+
+(use-package doom-themes
+  :config
+  (load-theme 'doom-vibrant t)
+  (set-face-background 'default "#000000")
+  (set-face-background 'line-number "#000000")
+  (set-face-background 'fringe "#000000")
+  (set-face-background 'hl-line "#1a1a1a"))
+
+(use-package doom-modeline :init (doom-modeline-mode 1))
+(use-package anzu :config (global-anzu-mode +1) (setq anzu-cons-mode-line-p nil))
+(use-package which-key :init (which-key-mode) :config (setq which-key-idle-delay 0.3))
+
+;; --- 4. Package Management ---
 (require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("gnu"   . "https://elpa.gnu.org/packages/")))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-
-(unless package-archive-contents
-  (package-refresh-contents))
-
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; General Setup
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(setq user-full-name "Phil Tracton"
-      user-mail-address "ptracton@gmail.com")
-
-;; Always load newest byte code
-(setq load-prefer-newer t)
-
-;; warn when opening files bigger than 100MB
-(setq large-file-warning-threshold 100000000)
-
-;; the blinking cursor is nothing, but an annoyance
-(blink-cursor-mode -1)
-
-;; disable the annoying bell ring
-(setq ring-bell-function 'ignore)
-
-;; disable startup screen
-(setq inhibit-startup-screen t)
-
-;; nice scrolling
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1)
-
-;; Show the time and system load
-(display-time-mode t)
-
-; Show line numbers everywhere
-(global-display-line-numbers-mode t)
-
-; Show the column numbers
-(column-number-mode t)
-
-; Show the size of the file
-(size-indication-mode t)
-
-; Set the title frame to the full path to the file
-(setq frame-title-format '(buffer-file-name "%f" ("%b")))
-
-;All files have a newline at the end
-(setq require-final-newline 't)
-
-; https://www.emacswiki.org/emacs/ShowParenMode
-(show-paren-mode 1)
-
-;; turn on font-lock mode everywhere
-(global-font-lock-mode t)
-
-  ;; disable backup file creation
-(setq backup-inhibited t)
-
-; answer with y/n instead of yes/no
-(fset 'yes-or-no-p 'y-or-n-p)
-
-; https://www.emacswiki.org/emacs/NoTabs
- ; Set tabs width to 4 space
-(setq tab-width 4)
-
-; Turn all tabs into spaces
-(setq-default indent-tabs-mode nil)
-
-;; revert buffers automatically when underlying files are changed externally
-(global-auto-revert-mode t)
-
-; Set the system to always use utf-8 and not ascii
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-
-;; seperate the custom variables from the handwritten sections
-(setq custom-file (locate-user-emacs-file "custom-vars.el"))
-(load custom-file 'noerror 'nomessage)
-
-;; -------------------------------
-;; Core Visual Enhancements
-;; -------------------------------
-(use-package magit
-  :bind (("C-x g" . magit-status)))
-
-(use-package diff-hl
-  :hook ((prog-mode . diff-hl-mode)
-         (magit-post-refresh . diff-hl-magit-post-refresh)))
-
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package anzu
-  :config (global-anzu-mode +1))
-
-(use-package windsize
-  :ensure t
-  :config
-  (windsize-default-keybindings)
-  )
-
-(use-package projectile
-  :init
-  (projectile-mode +1)
-  :bind-keymap
-  ("C-c p" . projectile-command-map))
-
-(use-package which-key
-  :init (which-key-mode)
-  :diminish which-key-mode)
-
-(use-package yasnippet
-  :init (yas-global-mode 1))
-
-(use-package yasnippet-snippets)
-
-(use-package smartparens
-  :hook (prog-mode . smartparens-mode))
-
-;; -------------------------------
-;; Enable Shift+Arrow for Text Selection
-;; -------------------------------
-(setq shift-select-mode t)
-(setq transient-mark-mode t)
-
-;; -------------------------------
-;; Proper Modern Shift + Arrow Selection
-;; -------------------------------
-;; Modern Shift + Arrow text selection without breaking Emacs keys
-(use-package cua-base
-  :config
-  (cua-mode t)                            ;; Turn on CUA
-  (cua-selection-mode t)                  ;; Only use it for text selection
-  (setq cua-enable-cua-keys nil            ;; Don't overwrite C-x/C-c/C-v
-        cua-enable-cursor-indications t
-        cua-enable-modeline-indications t
-        cua-auto-tabify-rectangles nil
-        cua-keep-region-after-copy t))
-
-;; -------------------------------
-;; Completion and Navigation
-;; -------------------------------
+;; --- 5. Helm & Project Search ---
 (use-package helm
   :init (helm-mode 1)
-  :bind (("M-x"     . helm-M-x)
-         ("C-x C-f" . helm-find-files)
-         ("C-x b"   . helm-buffers-list)
-         ("C-x r b" . helm-filtered-bookmarks)
-         ("C-x C-r" . helm-recentf)
-         ("C-c h o" . helm-occur)))
+  :bind (("M-x" . helm-M-x) ("C-x C-f" . helm-find-files) ("C-x b" . helm-buffers-list) ("<f1>" . helm-recentf))
+  :config (setq helm-split-window-inside-p nil helm-display-buffer-default-height 0.3))
+(add-to-list 'display-buffer-alist '("\\*helm" (display-buffer-in-side-window) (side . bottom) (window-height . 0.3)))
 
-(use-package helm-icons
-  :after helm
-  :config
-  (helm-icons-enable))
+(use-package projectile
+  :init (projectile-mode +1)
+  :config (setq compile-command "make -j$(nproc)")
+  :bind-keymap ("C-c p" . projectile-command-map))
 
-(use-package treemacs
-  :bind (("C-x t t" . treemacs)))
+(use-package helm-projectile
+  :after (helm projectile)
+  :config (helm-projectile-on)
+  :bind (("C-c p s" . helm-projectile-rg) ("C-c p f" . helm-projectile-find-file)))
 
-(setq treemacs-width 30)
-(add-hook 'emacs-startup-hook #'treemacs)
-
-;; -------------------------------
-;; Auto-collapse Treemacs on file open
-;; -------------------------------
-(defun my/treemacs-maybe-collapse (&rest _)
-  "Collapse Treemacs if a file is opened from Treemacs."
-  (when (and (treemacs-is-treemacs-window? (selected-window))
-             (buffer-file-name))
-    (delete-other-windows)))
-
-(advice-add 'treemacs-RET-action :after #'my/treemacs-maybe-collapse)
-
-(use-package company
-  :hook (prog-mode . company-mode))
-
-;; -------------------------------
-;; Syntax Checking
-;; -------------------------------
-(use-package flycheck
-  :hook (prog-mode . flycheck-mode))
-
-;; -------------------------------
-;; LSP Setup for multiple languages
-;; -------------------------------
+;; --- 6. LSP, Multi-Linter & Tree-Sitter ---
 (use-package lsp-mode
-  :hook ((c-mode          . my/c-cpp-setup-lsp)
-         (c++-mode        . my/c-cpp-setup-lsp)
-         (python-mode     . my/python-setup-lsp)
-         (verilog-mode    . my/verilog-setup-lsp)
-         (vhdl-mode       . my/vhdl-setup-lsp))
+  :init (setq lsp-keymap-prefix "C-c l")
+  :hook (prog-mode . lsp-deferred)
   :config
-  (setq lsp-eldoc-render-all t
-        lsp-idle-delay 0.6
-        lsp-log-io nil)
+  (add-to-list 'lsp-language-id-configuration '(python-ts-mode . "python"))
+  (add-to-list 'lsp-language-id-configuration '(verilog-mode . "verilog"))
+  (add-to-list 'lsp-language-id-configuration '(vhdl-mode . "vhdl"))
+  (setq lsp-clients-svlangserver-executable "/usr/local/bin/svlangserver" lsp-vhdl-server 'vhdl-ls)
+  (setq lsp-diagnostics-provider :flycheck lsp-headerline-breadcrumb-enable t))
 
-  (defun my/lsp-safe-start ()
-    (ignore-errors (lsp-deferred)))
+(use-package lsp-ui :config (setq lsp-ui-doc-enable t lsp-ui-sideline-enable t))
+(use-package lsp-treemacs :after (lsp treemacs) :config (lsp-treemacs-sync-mode 1))
 
-  (defun my/c-cpp-setup-lsp ()
-    (when (executable-find "clangd")
-      (setq-local lsp-clients-clangd-executable (executable-find "clangd"))
-      (my/lsp-safe-start)))
+(use-package flycheck
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-vhdl-ghdl-executable "ghdl" flycheck-verilog-verilator-executable "verilator")
+  (when (executable-find "ruff") (setq flycheck-python-ruff-executable "ruff")))
 
-  (defun my/python-setup-lsp ()
-    (cond
-     ((executable-find "pyright-langserver")
-      (require 'lsp-pyright)
-      (my/lsp-safe-start))
-     ((executable-find "pylsp")
-      (my/lsp-safe-start))))
-
-  (defun my/verilog-setup-lsp ()
-    (cond
-     ((executable-find "svlangserver")
-      (setq-local lsp-verilog-server 'svlangserver)
-      (my/lsp-safe-start))
-     ((executable-find "verible-verilog-ls")
-      (setq-local lsp-verilog-server 'verible-verilog-ls)
-      (setq lsp-verilog-verible-verilog-ls-binary (executable-find "verible-verilog-ls"))
-      (my/lsp-safe-start))))
-
-  (defun my/vhdl-setup-lsp ()
-    (when (executable-find "ghdl-ls")
-      (my/lsp-safe-start))))
-
-(use-package lsp-ui
-  :commands lsp-ui-mode)
-
-(use-package lsp-pyright
-  :if (executable-find "pyright-langserver")
-  :hook (python-mode . (lambda () (require 'lsp-pyright))))
-
-(use-package verilog-mode)
-(use-package vhdl-mode)
-
-;; -------------------------------
-;; Formatting
-;; -------------------------------
-(use-package reformatter)
-
-(reformatter-define verilog-format
-  :program "verible-verilog-format"
-  :args '("--stdin-filepath" buffer-file-name "--fallback-style" "Google")
-  :lighter " VF")
-
-(add-hook 'verilog-mode-hook #'verilog-format-on-save-mode)
-
-(defun my/vhdl-format-on-save ()
-  (add-hook 'before-save-hook #'vhdl-beautify nil t))
-
-(add-hook 'vhdl-mode-hook #'my/vhdl-format-on-save)
-
-(reformatter-define black-format
-  :program "black"
-  :args '("-q" "-")  ;; quiet, read from stdin
-  :group 'python
-  :lighter " ⬛")
-
-(add-hook 'python-mode-hook #'black-format-on-save-mode)
-
-(add-hook 'before-save-hook #'delete-trailing-whitespace)
-
-;; -------------------------------
-;; UI and Dashboard
-;; -------------------------------
-
-;; Highlight current line
-(global-hl-line-mode 1)
-
-;; Recent files
-(recentf-mode 1)
-(setq recentf-max-menu-items 50)
-
-;; Doom modeline
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom
-  (doom-modeline-height 15)
-  (doom-modeline-icon t))
-
-;; All-the-icons needed for doom-modeline
-(use-package all-the-icons
-  :if (display-graphic-p))
-
-;; Dashboard
-(use-package dashboard
-  :init
-  (setq dashboard-startup-banner 'official)
-  (setq dashboard-center-content t)
-  (setq dashboard-items '((recents  . 10)
-                           (projects . 5)))
-  (dashboard-setup-startup-hook))
-
-;; -------------------------------
-;; Org Mode
-;; -------------------------------
+;; --- 7. Org-Mode: Agenda, Capture, & Roam ---
 (use-package org
-  :hook (org-mode . visual-line-mode))
-
-;; -------------------------------
-;; Org-Mode Power Tools
-;; -------------------------------
-
-;; Org base
-(setq org-directory "~/org")
-(setq org-default-notes-file (expand-file-name "inbox.org" org-directory))
-
-;; Org-agenda
-(setq org-agenda-files (list org-directory))
-(global-set-key (kbd "C-c a") 'org-agenda)
-
-;; Org-journal
-(use-package org-journal
-  :custom
-  (org-journal-dir (expand-file-name "journal/" org-directory))
-  (org-journal-file-type 'daily)
-  (org-journal-enable-agenda-integration t)
-  :bind
-  ("C-c j" . org-journal-new-entry))
-
-;; Org-roam
-(use-package org-roam
-  :init
-  (setq org-roam-v2-ack t) ; suppress v2 upgrade warning
-  :custom
-  (org-roam-directory (file-truename "~/org/roam"))
+  :bind (("C-c a" . org-agenda) ("C-c c" . org-capture))
   :config
-  (org-roam-db-autosync-mode)
+  (setq org-directory "~/org"
+        org-agenda-files '("~/org/agenda.org" "~/org/inbox.org")
+        org-default-notes-file "~/org/inbox.org"
+        org-log-done 'time)
+  
+  (setq org-capture-templates
+        '(("t" "New Task" entry (file+headline "~/org/inbox.org" "Tasks")
+           "* TODO %?\n  Entered on: %U")
+          ("l" "Engineering Log" entry (file+datetree "~/org/journal.org")
+           "* %^{Log Title}\n  Time: %U\n\n  - Notes: %?"))))
+
+(use-package org-roam
+  :ensure t
+  :custom (org-roam-directory (file-truename "~/org/roam"))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
-         ("C-c n i" . org-roam-node-insert)))
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert))
+  :config (org-roam-db-autosync-mode))
 
-(use-package org-modern
-  :hook (org-mode . org-modern-mode))
+;; --- 8. Editing Tools (Smartparens, Ruff, Crux) ---
+(use-package smartparens
+  :hook (prog-mode . smartparens-mode)
+  :config (require 'smartparens-config))
 
-;; -------------------------------
-;; Embedded Systems tools
-;; -------------------------------
-(add-to-list 'load-path "~/.emacs.d/lisp")
-(require 'my-embedded)
-(require 'my-devtools)
+(use-package ruff-format
+  :hook ((python-mode . ruff-format-on-save-mode) (python-ts-mode . ruff-format-on-save-mode)))
 
-;; -------------------------------
-;; Suppress Annoying Warning Buffers
-;; -------------------------------
+(use-package crux :bind (("C-a" . crux-move-beginning-of-line)))
 
-(setq warning-minimum-level :error)
-
-;; Alternative (even stricter)
-;; (setq warning-minimum-level :emergency)
-
-
-;; -------------------------------
-;; Theme and Fonts
-;; -------------------------------
-
-;; Doom Themes
-(use-package doom-themes
-  :init
-  (load-theme 'doom-one t)) ;; Or doom-dracula, doom-gruvbox, etc.
-
-;; Fonts
-(set-face-attribute 'default nil
-                    :font "Fira Code Retina"
-                    :height 120) ;; 12pt size (120 = 12pt * 10)
-
-;; Enable font ligatures if you want (optional bonus)
-(when (fboundp 'mac-auto-operator-composition-mode)
-  (mac-auto-operator-composition-mode))
-
-(set-background-color "black")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function to remove ^M from end of line
-;; http://stackoverflow.com/questions/730751/hiding-m-in-emacs
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun remove-dos-eol ()
-  "Do not show ^M in files containing mixed UNIX and DOS line endings."
+(defun my/verilog-format-buffer ()
   (interactive)
-  (setq buffer-display-table (make-display-table))
-  (aset buffer-display-table ?\^M []))
+  (when (and (eq major-mode 'verilog-mode) (executable-find "verible-verilog-format"))
+    (call-process-region (point-min) (point-max) "verible-verilog-format" t t nil "-" "--inplace")))
+(add-hook 'verilog-mode-hook (lambda () (add-hook 'before-save-hook #'my/verilog-format-buffer nil 'local)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Keys
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(global-set-key (kbd "RET") 'newline-and-indent)  ; automatically indent when press RET
-
-;; Adjust font size like web browsers
-(global-set-key (kbd "C-=") #'text-scale-increase)
-(global-set-key (kbd "C-+") #'text-scale-increase)
-(global-set-key (kbd "C--") #'text-scale-decrease)
-
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-c o") 'helm-occur)
-(global-set-key (kbd "C-c C-g") 'projectile-grep)
-
-(global-set-key (kbd "<f1>") 'eshell)
+;; --- 9. Global Logic & Custom Keys ---
 (global-set-key (kbd "<f2>") 'magit-status)
-(global-set-key (kbd "S-<f2>") 'vc-dir)
 (global-set-key (kbd "<f3>") 'delete-trailing-whitespace)
-(global-set-key (kbd "<f4>") 'rainbow-delimiters-mode)
-(global-set-key (kbd "<f5>") 'comment-or-uncomment-region)
-(global-set-key (kbd "<f6>") 'highlight-changes-visible-mode)
-(global-set-key (kbd "S-<f6>") 'highlight-changes-remove-highlight)
-(global-set-key (kbd "<f7>") 'whitespace-mode)
-(global-set-key (kbd "<f8>") 'python-black-buffer)
-(global-set-key (kbd "<f9>") 'flycheck-list-errors)
-(global-set-key (kbd "<f10>") 'org-capture)
-(global-set-key (kbd "S-<f10>") 'org-agenda)
-(global-set-key (kbd "<f11>") 'lsp-treemacs-symbols)
+(global-set-key (kbd "<f4>") (lambda () (interactive) (rainbow-delimiters-mode 'toggle)))
+(global-set-key (kbd "<f5>") 'projectile-compile-project)
+(use-package blamer :bind ("<f6>" . blamer-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; File Associations
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(progn
-  (add-to-list 'auto-mode-alist '("\\.c\\'" . c-mode))
-  (add-to-list 'auto-mode-alist '("\\.h\\'" . c-mode))
-  (add-to-list 'auto-mode-alist '("\\.stim\\'" . verilog-mode))
-  (add-to-list 'auto-mode-alist  '("\\.vh\\'" . verilog-mode))
-  (add-to-list 'auto-mode-alist '("\\.f\\'" . text-mode))
-  (add-to-list 'auto-mode-alist '("\\.uml\\'" . plantuml-mode))
-  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-  )
+(defun my/hdl-toggle-source-header ()
+  (interactive)
+  (let* ((ext (file-name-extension (buffer-file-name)))
+         (base (file-name-sans-extension (buffer-file-name)))
+         (target (cond ((string= ext "v") "vh") ((string= ext "vh") "v")
+                       ((string= ext "c") "h") ((string= ext "h") "c"))))
+    (if (and target (file-exists-p (concat base "." target))) (find-file (concat base "." target)))))
+(global-set-key (kbd "C-c t") 'my/hdl-toggle-source-header)
 
+(defun my/indent-buffer () (interactive) (indent-region (point-min) (point-max)))
+(global-set-key (kbd "C-c i") 'my/indent-buffer)
 
+;; --- 10. Navigation & Completion ---
+(use-package windsize :bind (("C-<up>" . windsize-up) ("C-<down>" . windsize-down) ("C-<left>" . windsize-left) ("C-<right>" . windsize-right)))
+(use-package avy :bind ("M-s" . avy-goto-char-timer))
+(use-package multiple-cursors :bind (("C->" . mc/mark-next-like-this) ("C-<" . mc/mark-previous-like-this)))
+(use-package treemacs :bind ("C-x t t" . treemacs))
+(use-package corfu :init (global-corfu-mode) :custom (corfu-auto t))
+(use-package yasnippet :init (yas-global-mode 1))
+(use-package rainbow-delimiters :hook (prog-mode . rainbow-delimiters-mode))
+
+;; --- 11. Startup & Dashboard ---
+(use-package dashboard :config (dashboard-setup-startup-hook))
+(add-hook 'emacs-startup-hook (lambda () (treemacs) (switch-to-buffer "*dashboard*") (other-window 1)))
+
+(setq gc-cons-threshold (* 2 1024 1024))
 (provide 'init)
 ;;; init.el ends here
